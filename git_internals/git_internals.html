@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Git Internals</title>
+<meta name="author" content="(Aaron Kuehler)"/>
+
+<link rel="stylesheet" href="../reveal.js/css/reveal.css"/>
+<link rel="stylesheet" href="../reveal.js/css/theme/black.css" id="theme"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '../reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1>Git Internals</h1>
+<h2>Aaron Kuehler</h2>
+<h2><a href="mailto:"></a></h2>
+<h2></h2>
+</section>
+
+<section>
+<section id="slide-sec-1">
+<h2 id="sec-1">This talk is</h2>
+<p>
+a high level tour of git's internals
+</p>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-2">
+<h2 id="sec-2">This talk isn't</h2>
+<p>
+a git tutorial
+</p>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-3">
+<h2 id="sec-3">What is Git?</h2>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-4">
+<h2 id="sec-4">You might think&#x2026;</h2>
+<blockquote nil>
+<p>
+Git is a distributed revision control system with an emphasis on
+speed, data integrity, and support for distributed, non-linear
+workflows. Git was initially designed and developed by Linus
+Torvalds for Linux kernel development in 2005, and has since
+become the most widely adopted version control system for software
+development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en.wikipedia.org/wiki/Git_(software)">http://en.wikipedia.org/wiki/Git_(software)</a>
+</p>
+</blockquote>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-5">
+<h2 id="sec-5">WRONG!</h2>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-6">
+<h2 id="sec-6">It's a inter-dimensional, time traveling spaceship!</h2>
+
+<div class="figure">
+<p><img src="./images/tardis.png" alt="tardis.png" />
+</p>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-7">
+<h2 id="sec-7">Managing History</h2>
+<div class="outline-text-2" id="text-7">
+</div></section>
+<section id="slide-sec-7-1">
+<h3 id="sec-7-1">"Legacy" Version Control Systems</h3>
+
+<div class="figure">
+<p><img src="./images/deltas.png" alt="deltas.png" />
+</p>
+</div>
+<ul>
+<li>A list of changes to a collection of files</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-7-2">
+<h3 id="sec-7-2">Git</h3>
+
+<div class="figure">
+<p><img src="./images/snapshots.png" alt="snapshots.png" />
+</p>
+</div>
+
+<ul>
+<li>A stream of snapshots of the repository's filesystem</li>
+<li>If a file hasn't changed, a reference to the previous version is stored</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-7-3">
+<h3 id="sec-7-3">But we'll talk about time travel later&#x2026;</h3>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-8">
+<h2 id="sec-8">Change management</h2>
+<ul>
+<li>3 states of changes
+<ul>
+<li>Modified</li>
+<li>Staged for commit</li>
+<li>Committed</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-1">
+<h3 id="sec-8-1">Working Directory</h3>
+<ul>
+<li>Project root directory</li>
+<li>Contents are at a single version state of the project</li>
+<li>Files are pulled out of the git object database and put onto disk to be modified</li>
+<li>Changes are introduced here</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-2">
+<h3 id="sec-8-2">Index</h3>
+<ul>
+<li>A file in the <b>.git</b> directory</li>
+<li>Commit staging area</li>
+<li>Groups changes across repository contents as a logical change set</li>
+<li>Add changes to the index with
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git add
+</pre>
+</div></li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-3">
+<h3 id="sec-8-3">Repository</h3>
+<ul>
+<li>Is the <b>.git</b> directory at the project root</li>
+<li>Persistent, compressed object database</li>
+<li>Changes become permanent residents of the repository through Commits
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git commit
+</pre>
+</div></li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-9">
+<h2 id="sec-9">.git - The Object Database</h2>
+<ul>
+<li>Repository Metadata and Objects</li>
+<li>A key-value store (Checksums =&gt; Contents)</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-9-1">
+<h3 id="sec-9-1">Hashing</h3>
+<ul>
+<li>INPUT: Any amount of data</li>
+<li>OUTPUT: Fixed-size checksum</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-9-2">
+<h3 id="sec-9-2">Identity</h3>
+<ul>
+<li>Git generates a hash for any piece of information it's told to save</li>
+<li>Objects are identified <b>ONLY</b> by the checksum of their contents</li>
+<li>Hashes are unambigous identifiers
+<ul>
+<li>Filesystem names and paths only tell you where; not what</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-sec-9-3">
+<h3 id="sec-9-3">Integrity</h3>
+<ul>
+<li>Hashing makes it difficult to falsify objects</li>
+<li>Hashing makes it easy to detect bit-level storage errors</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-9-4">
+<h3 id="sec-9-4">Objects</h3>
+<ul>
+<li>Generic term for a <b>HASH =&gt; Contents</b> relationship</li>
+<li>3 general types of objects&#x2026;</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-9-5">
+<h3 id="sec-9-5">Blob Objects</h3>
+<ul>
+<li>Contents of a files</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; ls
+total 64
+drwxr-xr-x   6 aaronk  staff   204B May 17 17:13 .
+drwxr-xr-x   6 aaronk  staff   204B May 17 15:46 ..
+-rw-r--r--   1 aaronk  staff    13K May 17 17:13 git.html
+-rw-r--r--   1 aaronk  staff   6.2K May 17 17:13 git.org
+drwxr-xr-x  19 aaronk  staff   646B May 17 11:26 images
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git hash-object git.org
+6c11c174df16c742f3af39e8fcfce59e145b5d1a
+</pre>
+</div>
+
+</section>
+<section id="slide-sec-9-6">
+<h3 id="sec-9-6">Tree Objects</h3>
+<ul>
+<li>Akin to UNIX directory entries</li>
+<li>Group blobs and other tree objects</li>
+<li>Describes the filesystem mode, type, hash, and name of contents</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git ls-tree 63ceca3c82ef64d7d6e7089d26a0a0abe2f4ff06
+100644 blob 226c35d6fa666f398ab7f1c868f92787dad05300 git.html
+100644 blob 31708a9b9b554bb9bab6ad12df9bf2e7946c2d3a git.org
+040000 tree dc14fe90c649ea8b5a5f1afaeee620f1f3a69846 images
+</pre>
+</div>
+
+</section>
+<section id="slide-sec-9-7">
+<h3 id="sec-9-7">Commit Objects</h3>
+<ul>
+<li>Identified by Hash of the root tree object</li>
+<li>Records entire state of the repository at a point in time</li>
+<li>Commit Meta-data
+<ul>
+<li>Author, subject and log message, when it was made</li>
+
+</ul></li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git log --oneline -n 1
+b2849d3 initial commit
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git ls-tree b2849d3
+040000 tree 63ceca3c82ef64d7d6e7089d26a0a0abe2f4ff06 git
+160000 commit 07197b1eae80a264fd9ff7dc68316ae60e5ace29 reveal.js
+</pre>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-10">
+<h2 id="sec-10">History</h2>
+<ul>
+<li>A Commit object knows the hash of the commit that came before it</li>
+<li>It is easy to detect when history has been rewritten
+<ul>
+<li>Some parent commit's hash will fail checksum validation</li>
+
+</ul></li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-11">
+<h2 id="sec-11">Branches</h2>
+<ul>
+<li>Two or more commits share the same parent</li>
+<li>Use to segregate and track unrelated change sets</li>
+<li>Branches are CHEAP! (it's just a parent commit ref)</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/branches.png" alt="branches.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-12">
+<h2 id="sec-12">HEAD</h2>
+<ul>
+<li>Mapping of a <b>Name =&gt; Commit</b></li>
+<li>Adding a commit on a branch reassigns the HEAD ref to the new commit</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/heads.png" alt="heads.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-12-1">
+<h3 id="sec-12-1">Spoiler Alert</h3>
+<ul>
+<li>All HEADs are created equal</li>
+<li>Nothing special about the master or develop HEAD refs</li>
+<li>It's just a naming convention</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-13">
+<h2 id="sec-13">Changing the course of history</h2>
+<ul>
+<li>Commit E is a mistake</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/timetravel1.png" alt="timetravel1.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-13-1">
+<h3 id="sec-13-1">Changing the course of history</h3>
+<ul>
+<li>Change the feature/xyz HEAD ref Commit D</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/timetravel2.png" alt="timetravel2.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-13-2">
+<h3 id="sec-13-2">Changing the course of history</h3>
+<ul>
+<li>Make a new commit</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/timetravel3.png" alt="timetravel3.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-13-3">
+<h3 id="sec-13-3">Changing the course of history</h3>
+<ul>
+<li>Unreachable commits are removed from the repository</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git gc
+</pre>
+</div>
+
+<div class="figure">
+<p><img src="./images/timetravel3.png" alt="timetravel3.png" />
+</p>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-14">
+<h2 id="sec-14">Creating Parallel Universes</h2>
+<ul>
+<li>Change historical events to create a new version of reality</li>
+<li>Called <b>Rebasing</b></li>
+
+</ul>
+
+
+</section>
+<section id="slide-sec-14-1">
+<h3 id="sec-14-1">Rebasing</h3>
+<ul>
+<li>What if we forgot to add something as part of commit B</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/rebasing1.png" alt="rebasing1.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-14-2">
+<h3 id="sec-14-2">Rebasing</h3>
+<ul>
+<li>Go back in time and make the commit you wish you had instead of commit B &#x2013; commit F</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/rebasing2.png" alt="rebasing2.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-sec-14-3">
+<h3 id="sec-14-3">Rebasing</h3>
+<ul>
+<li>OK, now what?</li>
+<li>Can't just move the feature/xyz HEAD</li>
+<li>We'd lose commits D and E</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/rebasing3.png" alt="rebasing3.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-sec-14-4">
+<h3 id="sec-14-4">Rebasing</h3>
+<ul>
+<li>Git can calculate diffs between parent and child commits</li>
+<li>Rebasing does this for all commits after B</li>
+<li>Then applies the diffs as new commits on top of F</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/rebasing4.png" alt="rebasing4.png" />
+</p>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-15">
+<h2 id="sec-15">Practical Rebasing</h2>
+<ul>
+<li>feature/xyz is based off of master at commit A</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/practical_rebasing1.png" alt="practical_rebasing1.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-15-1">
+<h3 id="sec-15-1">Practical Rebasing</h3>
+<ul>
+<li>Change happens on master</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/practical_rebasing2.png" alt="practical_rebasing2.png" />
+</p>
+</div>
+
+
+</section>
+<section id="slide-sec-15-2">
+<h3 id="sec-15-2">Practical Rebasing</h3>
+<ul>
+<li>Change feature/xyz history to make it look like we started off of commit D</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./images/practical_rebasing3.png" alt="practical_rebasing3.png" />
+</p>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-16">
+<h2 id="sec-16">With great power&#x2026;</h2>
+<ul>
+<li>Changing shared history can be bad</li>
+<li>Leaves fellow time travelers stuck in unreferenced, parallel dimensions</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-17">
+<h2 id="sec-17">Resources</h2>
+<ul>
+<li>Pro Git (<a href="http://git-scm.com/book/en/v2">http://git-scm.com/book/en/v2</a>)</li>
+<li>Git From the Bottom Up (<a href="http://ftp.newartisans.com/pub/git.from.bottom.up.pdf">http://ftp.newartisans.com/pub/git.from.bottom.up.pdf</a>)</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+
+<script src="../reveal.js/lib/js/head.min.js"></script>
+<script src="../reveal.js/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: true,
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: '../reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: '../reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+ { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+]
+});
+</script>
+</body>
+</html>
