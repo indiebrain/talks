@@ -278,6 +278,7 @@
 
 * Resources
 
+  - Slides (http://bit.ly/talks_git_internals)
   - Pro Git (http://git-scm.com/book/en/v2)
   - Git From the Bottom Up (http://ftp.newartisans.com/pub/git.from.bottom.up.pdf)
 
