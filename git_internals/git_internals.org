@@ -179,6 +179,7 @@
   - Branches are CHEAP! (it's just a parent commit ref)
   [[./images/branches.png]]
 
+
 * HEAD
 
   - Mapping of a *Name => Commit*
@@ -274,7 +275,8 @@
 
   - Changing shared history can be bad
   - Leaves fellow time travelers stuck in unreferenced, parallel dimensions
-
+  - Never on rebase public, shared timelines (develop, master, release)
+  - Usually safe with private, local timelines (feature, hotfix)
 
 * Resources
 
