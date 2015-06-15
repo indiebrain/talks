@@ -469,7 +469,7 @@ b2849d3 initial commit
 <section id="slide-sec-14-2">
 <h3 id="sec-14-2">Rebasing</h3>
 <ul>
-<li>Go back in time and make the commit you wish you had instead of commit B &#x2013; commit F</li>
+<li>Go back in time and make the commit you wish you had instead of commit B &#x2013; commit E</li>
 
 </ul>
 
@@ -478,13 +478,14 @@ b2849d3 initial commit
 </p>
 </div>
 
+
 </section>
 <section id="slide-sec-14-3">
 <h3 id="sec-14-3">Rebasing</h3>
 <ul>
 <li>OK, now what?</li>
 <li>Can't just move the feature/xyz HEAD</li>
-<li>We'd lose commits D and E</li>
+<li>We'd lose commits C and D</li>
 
 </ul>
 
@@ -493,13 +494,14 @@ b2849d3 initial commit
 </p>
 </div>
 
+
 </section>
 <section id="slide-sec-14-4">
 <h3 id="sec-14-4">Rebasing</h3>
 <ul>
 <li>Git can calculate diffs between parent and child commits</li>
 <li>Rebasing does this for all commits after B</li>
-<li>Then applies the diffs as new commits on top of F</li>
+<li>Then applies the diffs as new commits on top of E</li>
 
 </ul>
 
@@ -513,51 +515,7 @@ b2849d3 initial commit
 </section>
 <section>
 <section id="slide-sec-15">
-<h2 id="sec-15">Practical Rebasing</h2>
-<ul>
-<li>feature/xyz is based off of master at commit A</li>
-
-</ul>
-
-<div class="figure">
-<p><img src="./images/practical_rebasing1.png" alt="practical_rebasing1.png" />
-</p>
-</div>
-
-
-</section>
-<section id="slide-sec-15-1">
-<h3 id="sec-15-1">Practical Rebasing</h3>
-<ul>
-<li>Change happens on master</li>
-
-</ul>
-
-<div class="figure">
-<p><img src="./images/practical_rebasing2.png" alt="practical_rebasing2.png" />
-</p>
-</div>
-
-
-</section>
-<section id="slide-sec-15-2">
-<h3 id="sec-15-2">Practical Rebasing</h3>
-<ul>
-<li>Change feature/xyz history to make it look like we started off of commit D</li>
-
-</ul>
-
-<div class="figure">
-<p><img src="./images/practical_rebasing3.png" alt="practical_rebasing3.png" />
-</p>
-</div>
-
-
-</section>
-</section>
-<section>
-<section id="slide-sec-16">
-<h2 id="sec-16">With great power&#x2026;</h2>
+<h2 id="sec-15">With great power&#x2026;</h2>
 <ul>
 <li>Changing shared history can be bad</li>
 <li>Leaves fellow time travelers stuck in unreferenced, parallel dimensions</li>
@@ -570,8 +528,8 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-17">
-<h2 id="sec-17">Resources</h2>
+<section id="slide-sec-16">
+<h2 id="sec-16">Resources</h2>
 <ul>
 <li>Slides (<a href="http://bit.ly/talks_git_internals">http://bit.ly/talks_git_internals</a>)</li>
 <li>Pro Git (<a href="http://git-scm.com/book/en/v2">http://git-scm.com/book/en/v2</a>)</li>

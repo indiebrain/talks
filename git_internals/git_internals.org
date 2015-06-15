@@ -235,40 +235,24 @@
 
 ** Rebasing
 
-  - Go back in time and make the commit you wish you had instead of commit B -- commit F
+  - Go back in time and make the commit you wish you had instead of commit B -- commit E
   [[./images/rebasing2.png]]
+
 
 ** Rebasing
 
   - OK, now what?
   - Can't just move the feature/xyz HEAD
-  - We'd lose commits D and E
+  - We'd lose commits C and D
   [[./images/rebasing3.png]]
+
 
 ** Rebasing
 
   - Git can calculate diffs between parent and child commits
   - Rebasing does this for all commits after B
-  - Then applies the diffs as new commits on top of F
+  - Then applies the diffs as new commits on top of E
   [[./images/rebasing4.png]]
-
-
-* Practical Rebasing
-
-  - feature/xyz is based off of master at commit A
-  [[./images/practical_rebasing1.png]]
-
-
-** Practical Rebasing
-
-  - Change happens on master
-  [[./images/practical_rebasing2.png]]
-
-
-** Practical Rebasing
-
-  - Change feature/xyz history to make it look like we started off of commit D
-  [[./images/practical_rebasing3.png]]
 
 
 * With great power...
@@ -277,6 +261,7 @@
   - Leaves fellow time travelers stuck in unreferenced, parallel dimensions
   - Never on rebase public, shared timelines (develop, master, release)
   - Usually safe with private, local timelines (feature, hotfix)
+
 
 * Resources
 
