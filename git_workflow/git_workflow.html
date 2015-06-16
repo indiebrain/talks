@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Git Workflow</title>
+<meta name="author" content="(Aaron Kuehler)"/>
+
+<link rel="stylesheet" href="../reveal.js/css/reveal.css"/>
+<link rel="stylesheet" href="../reveal.js/css/theme/black.css" id="theme"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '../reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1>Git Workflow</h1>
+<h2>Aaron Kuehler</h2>
+<h2><a href="mailto:"></a></h2>
+<h2></h2>
+</section>
+
+<section>
+<section id="slide-sec-1">
+<h2 id="sec-1">What is a workflow?</h2>
+<ul>
+<li>A series of steps designed to produce a repeatable outcome</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-2">
+<h2 id="sec-2">Goals of VCS Workflow</h2>
+<div class="outline-text-2" id="text-2">
+</div></section>
+<section id="slide-sec-2-1">
+<h3 id="sec-2-1">Reason-ability</h3>
+<ul>
+<li>Hotfix: What is the state of production?</li>
+<li>Release: What, exactly, are we about to deploy?</li>
+<li>Posthumous analysis: What was deployed last week?</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-2-2">
+<h3 id="sec-2-2">Communication</h3>
+<ul>
+<li>Body of Work &#x2013; "These commits are related"</li>
+<li>Semantic history</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-2-3">
+<h3 id="sec-2-3">Semantic History</h3>
+<ul>
+<li>History is project metadata</li>
+<li>History should describe things that code can't</li>
+<li>History is for others
+<ul>
+<li>"Tomorrow You" is an other</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-sec-2-4">
+<h3 id="sec-2-4">Semantic History</h3>
+<ul>
+<li>Intent: What does this changeset hope to accomplish</li>
+<li>Motivation: The driving business, cultural forces causing the change to happen</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-2-5">
+<h3 id="sec-2-5">Delivery</h3>
+
+<div class="figure">
+<p><img src="./images/shipit.png" alt="shipit.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-3">
+<h2 id="sec-3">Workflow</h2>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-4">
+<h2 id="sec-4">Common Sources of Truth</h2>
+<ul>
+<li>Permanent, shared HEAD ref of the repository</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-4-1">
+<h3 id="sec-4-1">master</h3>
+<ul>
+<li>Canonical view of production state</li>
+<li>Always stable</li>
+<li>Change <b>always</b>, ultimately, flows <b>to</b> here</li>
+<li>Change <b>never</b> originates <b>from</b> here</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-4-2">
+<h3 id="sec-4-2">develop</h3>
+<ul>
+<li>Master + Features going out in next release</li>
+<li>Should always be in a state from which a release candidate branch can be created for testing</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-5">
+<h2 id="sec-5">Common Sources of Truth</h2>
+
+<div class="figure">
+<p><img src="./images/main-branches.png" alt="main-branches.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-6">
+<h2 id="sec-6">Supporting Branch Types</h2>
+<ul>
+<li>Transient, short-lived</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-6-1">
+<h3 id="sec-6-1">feature</h3>
+<ul>
+<li>Containment unit for features under construction</li>
+<li>Branches off from develop</li>
+<li>Kept up to date with develop by rebasing</li>
+<li>Merged into develop</li>
+<li>Naming Convention - feature/feature<sub>name</sub></li>
+<li>Many branches of this type can exist at any given time</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-6-2">
+<h3 id="sec-6-2">feature</h3>
+
+<div class="figure">
+<p><img src="./images/feature-branches.png" alt="feature-branches.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-sec-6-3">
+<h3 id="sec-6-3">release</h3>
+<ul>
+<li>Staging area for a release candidate</li>
+<li>Branches off from develop</li>
+<li>Merged into develop and master</li>
+<li>Generates a new release Tag on master merge commit</li>
+<li>Naming Convention - release/yyyy-mm-dd</li>
+<li>One and only one branch of this type can exist at any given time</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-6-4">
+<h3 id="sec-6-4">release</h3>
+
+<div class="figure">
+<p><img src="./images/release-branches.png" alt="release-branches.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-sec-6-5">
+<h3 id="sec-6-5">hotfix</h3>
+<ul>
+<li>Containment unit for a fix to an issue found in production</li>
+<li>Branches off from master</li>
+<li>Merged into develop and master</li>
+<li>Generates a new release Tag on master merge commit</li>
+<li>Naming Convention - hotfix/defect<sub>id</sub><sub>and</sub><sub>description</sub></li>
+<li>Many branches of this type can exist at any given time</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-6-6">
+<h3 id="sec-6-6">hotfix</h3>
+
+<div class="figure">
+<p><img src="./images/hotfix-branches.png" alt="hotfix-branches.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-7">
+<h2 id="sec-7">Workflow</h2>
+
+<div class="figure">
+<p><img src="./images/gitflow.png" alt="gitflow.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-8">
+<h2 id="sec-8">Resources</h2>
+<ul>
+<li><a href="https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows">https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows</a></li>
+<li><a href="http://nvie.com/posts/a-successful-git-branching-model/">http://nvie.com/posts/a-successful-git-branching-model/</a></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+
+<script src="../reveal.js/lib/js/head.min.js"></script>
+<script src="../reveal.js/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: true,
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: '../reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: '../reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+ { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+]
+});
+</script>
+</body>
+</html>
