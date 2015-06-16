@@ -11,36 +11,129 @@
 
   a high level tour of git's internals
 
-
+  
 * This talk isn't
   
   a git tutorial
-
-
+  
+  
 * What is Git?
 
-
-* You might think...
-
-    #+BEGIN_QUOTE
-    Git is a distributed revision control system with an emphasis on
-    speed, data integrity, and support for distributed, non-linear
-    workflows. Git was initially designed and developed by Linus
-    Torvalds for Linux kernel development in 2005, and has since
-    become the most widely adopted version control system for software
-    development... - Wikipedia. Retrieved May 15, 2015, from http://en.wikipedia.org/wiki/Git_(software)
-    #+END_QUOTE
-
-
-* WRONG!
+  
+* You might have heard...
+  
+  #+BEGIN_QUOTE
+  Git (/ɡɪt/) is a distributed revision control system with an
+  emphasis on speed, data integrity, and support for distributed,
+  non-linear workflows and BLAH BLAH BLAH BLAH BLAH BLAH...
+  
+  -- Wikipedia
+  #+END_QUOTE
   
   
-* It's a inter-dimensional, time traveling spaceship!
-
+  
+* Kinda, but really...
+  
+  
+* Git is an inter-dimensional, time traveling spaceship
+  
   [[./images/tardis.png]]
+  
+  
+* How the spaceship is built
 
+* Object Database
 
-* Managing History
+  - Contained within the /.git/ directory
+  - A key-value store (Hashes => Contents)
+    
+** Hashing
+
+  - INPUT: Any amount of data
+  - OUTPUT: Fixed-size digest 
+  #+BEGIN_SRC
+  => echo "short thing to hash" | openssl dgst -sha1
+  199e4f3bcf4b1ea640949b11f44d1a48f4bacf6c
+
+  => echo "loooooooong thing to hash" | openssl dgst -sha1
+  a75402ee333f2f6d5937ff2be031b5945caa9c1b
+  #+END_SRC
+
+** Identity
+
+  - Git generates a hash for any piece of information it's told to save
+  - Objects are identified *ONLY* by the hash of their contents
+  - Hashes are unambiguous identifiers
+    - By contrast, file system names and paths only tell you where; not what
+
+** Integrity
+
+  - Hashing makes it easy to detect bit-level storage errors
+  - Hashing makes it difficult to falsify objects
+
+** Objects
+
+  - Generic term for a *HASH => Contents* relationship
+  - 3 general types of objects...
+
+** Blob Objects
+  
+  - Contents of a files
+  #+BEGIN_SRC bash
+  => ls
+  total 16
+  drwxr-xr-x   7 aaronk  staff   238B Jun 16 09:11 .
+  drwxr-xr-x   9 aaronk  staff   306B Jun 15 15:46 ..
+  drwxr-xr-x  16 aaronk  staff   544B Jun 16 09:11 .git
+  -rw-r--r--   1 aaronk  staff    86B Jun 15 16:10 .gitmodules
+  -rw-r--r--   1 aaronk  staff    54B Jun 16 09:10 README
+  drwxr-xr-x   6 aaronk  staff   204B Jun 16 09:07 git_internals
+  drwxr-xr-x  16 aaronk  staff   544B Jun 15 16:10 reveal.js
+  #+END_SRC
+
+  #+BEGIN_SRC bash
+  => git hash-object README
+  59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15
+  #+END_SRC
+
+** Tree Objects
+  
+  - Akin to UNIX directory entries
+  - Group blobs and other tree objects
+  - Describes the file system mode, type, hash, and name of contents
+  - Hashed by its metadata and its content's hashes
+  #+BEGIN_SRC bash
+  04000es0 tree 37575c28afe11142022728378a61290db6944b55 git_internals
+  #+END_SRC
+
+  #+BEGIN_SRC bash
+  => git ls-tree 37575c28afe11142022728378a61290db6944b55
+  100644 blob b604cebcf51df85a482bb3fa512f4b35b779904e git_internals.html
+  100644 blob c26e176b07a6ca31ce24944f77724971b1f70036 git_internals.org
+  040000 tree 01130c2e51b2cff13d89fa3710d2746168c762f9 images
+  #+END_SRC
+
+** Commit Objects
+  
+  - Identified by Hash of the root tree object
+  - Records entire state of the repository at a point in time
+  - Commit Meta-data
+    - Author, subject and log message, when it was made
+  #+BEGIN_SRC bash
+  => git log --oneline -n 1
+  ef971ae add README
+  #+END_SRC
+
+  #+BEGIN_SRC bash
+  => git ls-tree ef971ae
+  100644 blob b2a68171122dcbfdccdb9a9e824a567c6ef9fed2 .gitmodules
+  100644 blob 59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15 README
+  040000 tree 37575c28afe11142022728378a61290db6944b55 git_internals
+  160000 commit f0cf1f54d04088d241acf81eef42bd878a9f02ba reveal.js
+  #+END_SRC
+
+  
+* How the spaceship moves 
 
 ** "Legacy" Version Control Systems
 
@@ -50,13 +143,12 @@
 ** Git
   [[./images/snapshots.png]]
 
-  - A stream of snapshots of the repository's filesystem
+  - A stream of snapshots of the repository's file system
   - If a file hasn't changed, a reference to the previous version is stored
 
-** But we'll talk about time travel later...
 
-
-* Change management
+  
+* Managing Changes
 
   - 3 states of changes
     - Modified
@@ -72,8 +164,8 @@
 
 ** Index
 
-  - A file in the *.git* directory
   - Commit staging area
+  - A file in the *.git* directory
   - Groups changes across repository contents as a logical change set
   - Add changes to the index with
     #+BEGIN_SRC bash
@@ -89,89 +181,14 @@
     => git commit 
     #+END_SRC
 
-
-* .git - The Object Database
-
-  - Repository Metadata and Objects
-  - A key-value store (Checksums => Contents)
-
-** Hashing
-
-  - INPUT: Any amount of data
-  - OUTPUT: Fixed-size checksum
-
-** Identity
-
-  - Git generates a hash for any piece of information it's told to save
-  - Objects are identified *ONLY* by the checksum of their contents
-  - Hashes are unambigous identifiers
-    - Filesystem names and paths only tell you where; not what
-
-** Integrity
-
-  - Hashing makes it difficult to falsify objects
-  - Hashing makes it easy to detect bit-level storage errors
-
-** Objects
-
-  - Generic term for a *HASH => Contents* relationship
-  - 3 general types of objects...
-
-** Blob Objects
-  
-  - Contents of a files
-  #+BEGIN_SRC bash
-  => ls
-  total 64
-  drwxr-xr-x   6 aaronk  staff   204B May 17 17:13 .
-  drwxr-xr-x   6 aaronk  staff   204B May 17 15:46 ..
-  -rw-r--r--   1 aaronk  staff    13K May 17 17:13 git.html
-  -rw-r--r--   1 aaronk  staff   6.2K May 17 17:13 git.org
-  drwxr-xr-x  19 aaronk  staff   646B May 17 11:26 images
-  #+END_SRC
-
-  #+BEGIN_SRC bash
-  => git hash-object git.org
-  6c11c174df16c742f3af39e8fcfce59e145b5d1a
-  #+END_SRC
-
-** Tree Objects
-  
-  - Akin to UNIX directory entries
-  - Group blobs and other tree objects
-  - Describes the filesystem mode, type, hash, and name of contents
-  #+BEGIN_SRC bash
-  => git ls-tree 63ceca3c82ef64d7d6e7089d26a0a0abe2f4ff06
-  100644 blob 226c35d6fa666f398ab7f1c868f92787dad05300 git.html
-  100644 blob 31708a9b9b554bb9bab6ad12df9bf2e7946c2d3a git.org
-  040000 tree dc14fe90c649ea8b5a5f1afaeee620f1f3a69846 images
-  #+END_SRC
-
-** Commit Objects
-  
-  - Identified by Hash of the root tree object
-  - Records entire state of the repository at a point in time
-  - Commit Meta-data
-    - Author, subject and log message, when it was made
-  #+BEGIN_SRC bash
-  => git log --oneline -n 1
-  b2849d3 initial commit
-  #+END_SRC
-
-  #+BEGIN_SRC bash
-  => git ls-tree b2849d3
-  040000 tree 63ceca3c82ef64d7d6e7089d26a0a0abe2f4ff06 git
-  160000 commit 07197b1eae80a264fd9ff7dc68316ae60e5ace29 reveal.js
-  #+END_SRC
-
-
+    
 * History
 
-  - A Commit object knows the hash of the commit that came before it
+  - A commit object knows the hash of the commit that came before it
   - It is easy to detect when history has been rewritten
-    - Some parent commit's hash will fail checksum validation
+    - Some parent commit's hash will fail hash validation
 
-
+      
 * Branches
 
   - Two or more commits share the same parent
@@ -179,7 +196,7 @@
   - Branches are CHEAP! (it's just a parent commit ref)
   [[./images/branches.png]]
 
-
+  
 * HEAD
 
   - Mapping of a *Name => Commit*
@@ -193,22 +210,29 @@
   - Nothing special about the master or develop HEAD refs
   - It's just a naming convention
 
-
+    
 * Changing the course of history
 
-  - Commit E is a mistake
+  - Commit E is a mistake and we want to remove it
   [[./images/timetravel1.png]]
 
 
 ** Changing the course of history
 
   - Change the feature/xyz HEAD ref Commit D
+  #+BEGIN_SRC bash
+  => git reset HEAD~1
+  #+END_SRC
   [[./images/timetravel2.png]]
 
 
 ** Changing the course of history
 
   - Make a new commit
+  #+BEGIN_SRC bash
+  => git add -all
+  => git commit
+  #+END_SRC
   [[./images/timetravel3.png]]
 
 
@@ -220,10 +244,10 @@
   #+END_SRC
   [[./images/timetravel3.png]]
 
+  
+* Changing history itself
 
-* Creating Parallel Universes
-
-  - Change historical events to create a new version of reality
+  - Rewrite a point in history to create a new version of reality
   - Called *Rebasing*
 
 
@@ -238,34 +262,42 @@
   - Go back in time and make the commit you wish you had instead of commit B -- commit E
   [[./images/rebasing2.png]]
 
-
+  
 ** Rebasing
 
   - OK, now what?
-  - Can't just move the feature/xyz HEAD
+  - Can't *just* move the feature/xyz HEAD
   - We'd lose commits C and D
   [[./images/rebasing3.png]]
 
 
 ** Rebasing
 
+  - "Replaying commits"
   - Git can calculate diffs between parent and child commits
   - Rebasing does this for all commits after B
   - Then applies the diffs as new commits on top of E
   [[./images/rebasing4.png]]
 
-
+  
 * With great power...
 
   - Changing shared history can be bad
   - Leaves fellow time travelers stuck in unreferenced, parallel dimensions
-  - Never on rebase public, shared timelines (develop, master, release)
-  - Usually safe with private, local timelines (feature, hotfix)
+  - Never on rebase shared timelines (develop, master, release)
+  - Usually safe with private timelines (feature, hotfix)
+  - But, it can be really useful for keeping history "clean"
 
 
-* Resources
+* Summary
+
+  - Nomenclature: Repository, Hash, Object, Head, Index, etc
+  - How git tracks time and space internally
+
+
+* Sources / Resources
 
   - Slides (http://bit.ly/talks_git_internals)
   - Pro Git (http://git-scm.com/book/en/v2)
   - Git From the Bottom Up (http://ftp.newartisans.com/pub/git.from.bottom.up.pdf)
-
+  - Wikipedia (https://en.wikipedia.org/?title=Git_(software))

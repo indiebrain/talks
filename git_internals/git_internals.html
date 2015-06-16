@@ -59,31 +59,33 @@ a git tutorial
 </section>
 <section>
 <section id="slide-sec-4">
-<h2 id="sec-4">You might think&#x2026;</h2>
+<h2 id="sec-4">You might have heard&#x2026;</h2>
 <blockquote nil>
 <p>
-Git is a distributed revision control system with an emphasis on
-speed, data integrity, and support for distributed, non-linear
-workflows. Git was initially designed and developed by Linus
-Torvalds for Linux kernel development in 2005, and has since
-become the most widely adopted version control system for software
-development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en.wikipedia.org/wiki/Git_(software)">http://en.wikipedia.org/wiki/Git_(software)</a>
+Git (<i>ɡɪt</i>) is a distributed revision control system with an
+emphasis on speed, data integrity, and support for distributed,
+non-linear workflows and BLAH BLAH BLAH BLAH BLAH BLAH&#x2026;
+</p>
+
+<p>
+&#x2013; Wikipedia
 </p>
 </blockquote>
+
 
 
 </section>
 </section>
 <section>
 <section id="slide-sec-5">
-<h2 id="sec-5">WRONG!</h2>
+<h2 id="sec-5">Kinda, but really&#x2026;</h2>
 
 
 </section>
 </section>
 <section>
 <section id="slide-sec-6">
-<h2 id="sec-6">It's a inter-dimensional, time traveling spaceship!</h2>
+<h2 id="sec-6">Git is an inter-dimensional, time traveling spaceship</h2>
 
 <div class="figure">
 <p><img src="./images/tardis.png" alt="tardis.png" />
@@ -95,11 +97,160 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </section>
 <section>
 <section id="slide-sec-7">
-<h2 id="sec-7">Managing History</h2>
-<div class="outline-text-2" id="text-7">
+<h2 id="sec-7">How the spaceship is built</h2>
+
+</section>
+</section>
+<section>
+<section id="slide-sec-8">
+<h2 id="sec-8">Object Database</h2>
+<ul>
+<li>Contained within the <i>.git</i> directory</li>
+<li>A key-value store (Hashes =&gt; Contents)</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-1">
+<h3 id="sec-8-1">Hashing</h3>
+<ul>
+<li>INPUT: Any amount of data</li>
+<li>OUTPUT: Fixed-size digest</li>
+
+</ul>
+<pre  class="example">
+=&gt; echo "short thing to hash" | openssl dgst -sha1
+199e4f3bcf4b1ea640949b11f44d1a48f4bacf6c
+
+=&gt; echo "loooooooong thing to hash" | openssl dgst -sha1
+a75402ee333f2f6d5937ff2be031b5945caa9c1b
+</pre>
+
+</section>
+<section id="slide-sec-8-2">
+<h3 id="sec-8-2">Identity</h3>
+<ul>
+<li>Git generates a hash for any piece of information it's told to save</li>
+<li>Objects are identified <b>ONLY</b> by the hash of their contents</li>
+<li>Hashes are unambiguous identifiers
+<ul>
+<li>By contrast, file system names and paths only tell you where; not what</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-3">
+<h3 id="sec-8-3">Integrity</h3>
+<ul>
+<li>Hashing makes it easy to detect bit-level storage errors</li>
+<li>Hashing makes it difficult to falsify objects</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-4">
+<h3 id="sec-8-4">Objects</h3>
+<ul>
+<li>Generic term for a <b>HASH =&gt; Contents</b> relationship</li>
+<li>3 general types of objects&#x2026;</li>
+
+</ul>
+
+</section>
+<section id="slide-sec-8-5">
+<h3 id="sec-8-5">Blob Objects</h3>
+<ul>
+<li>Contents of a files</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; ls
+total 16
+drwxr-xr-x   7 aaronk  staff   238B Jun 16 09:11 .
+drwxr-xr-x   9 aaronk  staff   306B Jun 15 15:46 ..
+drwxr-xr-x  16 aaronk  staff   544B Jun 16 09:11 .git
+-rw-r--r--   1 aaronk  staff    86B Jun 15 16:10 .gitmodules
+-rw-r--r--   1 aaronk  staff    54B Jun 16 09:10 README
+drwxr-xr-x   6 aaronk  staff   204B Jun 16 09:07 git_internals
+drwxr-xr-x  16 aaronk  staff   544B Jun 15 16:10 reveal.js
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git hash-object README
+59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15
+</pre>
+</div>
+
+</section>
+<section id="slide-sec-8-6">
+<h3 id="sec-8-6">Tree Objects</h3>
+<ul>
+<li>Akin to UNIX directory entries</li>
+<li>Group blobs and other tree objects</li>
+<li>Describes the file system mode, type, hash, and name of contents</li>
+<li>Hashed by its metadata and its content's hashes</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">04000es0 tree 37575c28afe11142022728378a61290db6944b55 git_internals
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git ls-tree 37575c28afe11142022728378a61290db6944b55
+100644 blob b604cebcf51df85a482bb3fa512f4b35b779904e git_internals.html
+100644 blob c26e176b07a6ca31ce24944f77724971b1f70036 git_internals.org
+040000 tree 01130c2e51b2cff13d89fa3710d2746168c762f9 images
+</pre>
+</div>
+
+</section>
+<section id="slide-sec-8-7">
+<h3 id="sec-8-7">Commit Objects</h3>
+<ul>
+<li>Identified by Hash of the root tree object</li>
+<li>Records entire state of the repository at a point in time</li>
+<li>Commit Meta-data
+<ul>
+<li>Author, subject and log message, when it was made</li>
+
+</ul></li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git log --oneline -n 1
+ef971ae add README
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git ls-tree ef971ae
+100644 blob b2a68171122dcbfdccdb9a9e824a567c6ef9fed2 .gitmodules
+100644 blob 59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15 README
+040000 tree 37575c28afe11142022728378a61290db6944b55 git_internals
+160000 commit f0cf1f54d04088d241acf81eef42bd878a9f02ba reveal.js
+</pre>
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-9">
+<h2 id="sec-9">How the spaceship moves</h2>
+<div class="outline-text-2" id="text-9">
 </div></section>
-<section id="slide-sec-7-1">
-<h3 id="sec-7-1">"Legacy" Version Control Systems</h3>
+<section id="slide-sec-9-1">
+<h3 id="sec-9-1">"Legacy" Version Control Systems</h3>
 
 <div class="figure">
 <p><img src="./images/deltas.png" alt="deltas.png" />
@@ -111,8 +262,8 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </ul>
 
 </section>
-<section id="slide-sec-7-2">
-<h3 id="sec-7-2">Git</h3>
+<section id="slide-sec-9-2">
+<h3 id="sec-9-2">Git</h3>
 
 <div class="figure">
 <p><img src="./images/snapshots.png" alt="snapshots.png" />
@@ -120,21 +271,18 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </div>
 
 <ul>
-<li>A stream of snapshots of the repository's filesystem</li>
+<li>A stream of snapshots of the repository's file system</li>
 <li>If a file hasn't changed, a reference to the previous version is stored</li>
 
 </ul>
 
-</section>
-<section id="slide-sec-7-3">
-<h3 id="sec-7-3">But we'll talk about time travel later&#x2026;</h3>
 
 
 </section>
 </section>
 <section>
-<section id="slide-sec-8">
-<h2 id="sec-8">Change management</h2>
+<section id="slide-sec-10">
+<h2 id="sec-10">Managing Changes</h2>
 <ul>
 <li>3 states of changes
 <ul>
@@ -147,8 +295,8 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </ul>
 
 </section>
-<section id="slide-sec-8-1">
-<h3 id="sec-8-1">Working Directory</h3>
+<section id="slide-sec-10-1">
+<h3 id="sec-10-1">Working Directory</h3>
 <ul>
 <li>Project root directory</li>
 <li>Contents are at a single version state of the project</li>
@@ -158,11 +306,11 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </ul>
 
 </section>
-<section id="slide-sec-8-2">
-<h3 id="sec-8-2">Index</h3>
+<section id="slide-sec-10-2">
+<h3 id="sec-10-2">Index</h3>
 <ul>
-<li>A file in the <b>.git</b> directory</li>
 <li>Commit staging area</li>
+<li>A file in the <b>.git</b> directory</li>
 <li>Groups changes across repository contents as a logical change set</li>
 <li>Add changes to the index with
 <div class="org-src-container">
@@ -174,8 +322,8 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </ul>
 
 </section>
-<section id="slide-sec-8-3">
-<h3 id="sec-8-3">Repository</h3>
+<section id="slide-sec-10-3">
+<h3 id="sec-10-3">Repository</h3>
 <ul>
 <li>Is the <b>.git</b> directory at the project root</li>
 <li>Persistent, compressed object database</li>
@@ -192,138 +340,13 @@ development&#x2026; - Wikipedia. Retrieved May 15, 2015, from <a href="http://en
 </section>
 </section>
 <section>
-<section id="slide-sec-9">
-<h2 id="sec-9">.git - The Object Database</h2>
+<section id="slide-sec-11">
+<h2 id="sec-11">History</h2>
 <ul>
-<li>Repository Metadata and Objects</li>
-<li>A key-value store (Checksums =&gt; Contents)</li>
-
-</ul>
-
-</section>
-<section id="slide-sec-9-1">
-<h3 id="sec-9-1">Hashing</h3>
-<ul>
-<li>INPUT: Any amount of data</li>
-<li>OUTPUT: Fixed-size checksum</li>
-
-</ul>
-
-</section>
-<section id="slide-sec-9-2">
-<h3 id="sec-9-2">Identity</h3>
-<ul>
-<li>Git generates a hash for any piece of information it's told to save</li>
-<li>Objects are identified <b>ONLY</b> by the checksum of their contents</li>
-<li>Hashes are unambigous identifiers
-<ul>
-<li>Filesystem names and paths only tell you where; not what</li>
-
-</ul></li>
-
-</ul>
-
-</section>
-<section id="slide-sec-9-3">
-<h3 id="sec-9-3">Integrity</h3>
-<ul>
-<li>Hashing makes it difficult to falsify objects</li>
-<li>Hashing makes it easy to detect bit-level storage errors</li>
-
-</ul>
-
-</section>
-<section id="slide-sec-9-4">
-<h3 id="sec-9-4">Objects</h3>
-<ul>
-<li>Generic term for a <b>HASH =&gt; Contents</b> relationship</li>
-<li>3 general types of objects&#x2026;</li>
-
-</ul>
-
-</section>
-<section id="slide-sec-9-5">
-<h3 id="sec-9-5">Blob Objects</h3>
-<ul>
-<li>Contents of a files</li>
-
-</ul>
-<div class="org-src-container">
-
-<pre  class="src src-bash">=&gt; ls
-total 64
-drwxr-xr-x   6 aaronk  staff   204B May 17 17:13 .
-drwxr-xr-x   6 aaronk  staff   204B May 17 15:46 ..
--rw-r--r--   1 aaronk  staff    13K May 17 17:13 git.html
--rw-r--r--   1 aaronk  staff   6.2K May 17 17:13 git.org
-drwxr-xr-x  19 aaronk  staff   646B May 17 11:26 images
-</pre>
-</div>
-
-<div class="org-src-container">
-
-<pre  class="src src-bash">=&gt; git hash-object git.org
-6c11c174df16c742f3af39e8fcfce59e145b5d1a
-</pre>
-</div>
-
-</section>
-<section id="slide-sec-9-6">
-<h3 id="sec-9-6">Tree Objects</h3>
-<ul>
-<li>Akin to UNIX directory entries</li>
-<li>Group blobs and other tree objects</li>
-<li>Describes the filesystem mode, type, hash, and name of contents</li>
-
-</ul>
-<div class="org-src-container">
-
-<pre  class="src src-bash">=&gt; git ls-tree 63ceca3c82ef64d7d6e7089d26a0a0abe2f4ff06
-100644 blob 226c35d6fa666f398ab7f1c868f92787dad05300 git.html
-100644 blob 31708a9b9b554bb9bab6ad12df9bf2e7946c2d3a git.org
-040000 tree dc14fe90c649ea8b5a5f1afaeee620f1f3a69846 images
-</pre>
-</div>
-
-</section>
-<section id="slide-sec-9-7">
-<h3 id="sec-9-7">Commit Objects</h3>
-<ul>
-<li>Identified by Hash of the root tree object</li>
-<li>Records entire state of the repository at a point in time</li>
-<li>Commit Meta-data
-<ul>
-<li>Author, subject and log message, when it was made</li>
-
-</ul></li>
-
-</ul>
-<div class="org-src-container">
-
-<pre  class="src src-bash">=&gt; git log --oneline -n 1
-b2849d3 initial commit
-</pre>
-</div>
-
-<div class="org-src-container">
-
-<pre  class="src src-bash">=&gt; git ls-tree b2849d3
-040000 tree 63ceca3c82ef64d7d6e7089d26a0a0abe2f4ff06 git
-160000 commit 07197b1eae80a264fd9ff7dc68316ae60e5ace29 reveal.js
-</pre>
-</div>
-
-
-</section>
-</section>
-<section>
-<section id="slide-sec-10">
-<h2 id="sec-10">History</h2>
-<ul>
-<li>A Commit object knows the hash of the commit that came before it</li>
+<li>A commit object knows the hash of the commit that came before it</li>
 <li>It is easy to detect when history has been rewritten
 <ul>
-<li>Some parent commit's hash will fail checksum validation</li>
+<li>Some parent commit's hash will fail hash validation</li>
 
 </ul></li>
 
@@ -333,8 +356,8 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-11">
-<h2 id="sec-11">Branches</h2>
+<section id="slide-sec-12">
+<h2 id="sec-12">Branches</h2>
 <ul>
 <li>Two or more commits share the same parent</li>
 <li>Use to segregate and track unrelated change sets</li>
@@ -351,8 +374,8 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-12">
-<h2 id="sec-12">HEAD</h2>
+<section id="slide-sec-13">
+<h2 id="sec-13">HEAD</h2>
 <ul>
 <li>Mapping of a <b>Name =&gt; Commit</b></li>
 <li>Adding a commit on a branch reassigns the HEAD ref to the new commit</li>
@@ -366,8 +389,8 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-12-1">
-<h3 id="sec-12-1">Spoiler Alert</h3>
+<section id="slide-sec-13-1">
+<h3 id="sec-13-1">Spoiler Alert</h3>
 <ul>
 <li>All HEADs are created equal</li>
 <li>Nothing special about the master or develop HEAD refs</li>
@@ -379,10 +402,10 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-13">
-<h2 id="sec-13">Changing the course of history</h2>
+<section id="slide-sec-14">
+<h2 id="sec-14">Changing the course of history</h2>
 <ul>
-<li>Commit E is a mistake</li>
+<li>Commit E is a mistake and we want to remove it</li>
 
 </ul>
 
@@ -393,12 +416,17 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-13-1">
-<h3 id="sec-13-1">Changing the course of history</h3>
+<section id="slide-sec-14-1">
+<h3 id="sec-14-1">Changing the course of history</h3>
 <ul>
 <li>Change the feature/xyz HEAD ref Commit D</li>
 
 </ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git reset HEAD~1
+</pre>
+</div>
 
 <div class="figure">
 <p><img src="./images/timetravel2.png" alt="timetravel2.png" />
@@ -407,12 +435,18 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-13-2">
-<h3 id="sec-13-2">Changing the course of history</h3>
+<section id="slide-sec-14-2">
+<h3 id="sec-14-2">Changing the course of history</h3>
 <ul>
 <li>Make a new commit</li>
 
 </ul>
+<div class="org-src-container">
+
+<pre  class="src src-bash">=&gt; git add -all
+=&gt; git commit
+</pre>
+</div>
 
 <div class="figure">
 <p><img src="./images/timetravel3.png" alt="timetravel3.png" />
@@ -421,8 +455,8 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-13-3">
-<h3 id="sec-13-3">Changing the course of history</h3>
+<section id="slide-sec-14-3">
+<h3 id="sec-14-3">Changing the course of history</h3>
 <ul>
 <li>Unreachable commits are removed from the repository</li>
 
@@ -442,18 +476,18 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-14">
-<h2 id="sec-14">Creating Parallel Universes</h2>
+<section id="slide-sec-15">
+<h2 id="sec-15">Changing history itself</h2>
 <ul>
-<li>Change historical events to create a new version of reality</li>
+<li>Rewrite a point in history to create a new version of reality</li>
 <li>Called <b>Rebasing</b></li>
 
 </ul>
 
 
 </section>
-<section id="slide-sec-14-1">
-<h3 id="sec-14-1">Rebasing</h3>
+<section id="slide-sec-15-1">
+<h3 id="sec-15-1">Rebasing</h3>
 <ul>
 <li>What if we forgot to add something as part of commit B</li>
 
@@ -466,8 +500,8 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-14-2">
-<h3 id="sec-14-2">Rebasing</h3>
+<section id="slide-sec-15-2">
+<h3 id="sec-15-2">Rebasing</h3>
 <ul>
 <li>Go back in time and make the commit you wish you had instead of commit B &#x2013; commit E</li>
 
@@ -480,11 +514,11 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-14-3">
-<h3 id="sec-14-3">Rebasing</h3>
+<section id="slide-sec-15-3">
+<h3 id="sec-15-3">Rebasing</h3>
 <ul>
 <li>OK, now what?</li>
-<li>Can't just move the feature/xyz HEAD</li>
+<li>Can't <b>just</b> move the feature/xyz HEAD</li>
 <li>We'd lose commits C and D</li>
 
 </ul>
@@ -496,9 +530,10 @@ b2849d3 initial commit
 
 
 </section>
-<section id="slide-sec-14-4">
-<h3 id="sec-14-4">Rebasing</h3>
+<section id="slide-sec-15-4">
+<h3 id="sec-15-4">Rebasing</h3>
 <ul>
+<li>"Replaying commits"</li>
 <li>Git can calculate diffs between parent and child commits</li>
 <li>Rebasing does this for all commits after B</li>
 <li>Then applies the diffs as new commits on top of E</li>
@@ -514,13 +549,14 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-15">
-<h2 id="sec-15">With great power&#x2026;</h2>
+<section id="slide-sec-16">
+<h2 id="sec-16">With great power&#x2026;</h2>
 <ul>
 <li>Changing shared history can be bad</li>
 <li>Leaves fellow time travelers stuck in unreferenced, parallel dimensions</li>
-<li>Never on rebase public, shared timelines (develop, master, release)</li>
-<li>Usually safe with private, local timelines (feature, hotfix)</li>
+<li>Never on rebase shared timelines (develop, master, release)</li>
+<li>Usually safe with private timelines (feature, hotfix)</li>
+<li>But, it can be really useful for keeping history "clean"</li>
 
 </ul>
 
@@ -528,12 +564,25 @@ b2849d3 initial commit
 </section>
 </section>
 <section>
-<section id="slide-sec-16">
-<h2 id="sec-16">Resources</h2>
+<section id="slide-sec-17">
+<h2 id="sec-17">Summary</h2>
+<ul>
+<li>Nomenclature: Repository, Hash, Object, Head, Index, etc</li>
+<li>How git tracks time and space internally</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-sec-18">
+<h2 id="sec-18">Sources / Resources</h2>
 <ul>
 <li>Slides (<a href="http://bit.ly/talks_git_internals">http://bit.ly/talks_git_internals</a>)</li>
 <li>Pro Git (<a href="http://git-scm.com/book/en/v2">http://git-scm.com/book/en/v2</a>)</li>
 <li>Git From the Bottom Up (<a href="http://ftp.newartisans.com/pub/git.from.bottom.up.pdf">http://ftp.newartisans.com/pub/git.from.bottom.up.pdf</a>)</li>
+<li>Wikipedia (<a href="https://en.wikipedia.org/?title=Git_(software)">https://en.wikipedia.org/?title=Git_(software)</a>)</li>
 
 </ul>
 </section>
