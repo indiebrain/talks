@@ -1,8 +1,9 @@
 #+TITLE: Git Internals
 #+AUTHOR: Aaron Kuehler
-#+EMAIL: 
+#+EMAIL:
 #+OPTIONS: toc:nil
 #+OPTIONS: num:nil
+#+OPTIONS: reveal_single_file:t
 #+REVEAL_ROOT: ../reveal.js
 #+REVEAL_THEME: black
 #+REVEAL_TRANS: default
