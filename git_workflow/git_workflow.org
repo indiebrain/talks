@@ -45,7 +45,7 @@
 
 * Common Sources of Truth
 
-  - Permanent, shared HEAD ref of the repository
+  - Permanent, shared refs of the repository
 
 ** master
 
