@@ -12,47 +12,40 @@
 
   a high level tour of git's internals
 
-  
 * This talk isn't
-  
+
   a git tutorial
-  
-  
+
 * What is Git?
 
-  
 * You might have heard...
-  
+
   #+BEGIN_QUOTE
   Git (/ɡɪt/) is a distributed revision control system with an
   emphasis on speed, data integrity, and support for distributed,
   non-linear workflows and BLAH BLAH BLAH BLAH BLAH BLAH...
-  
+
   -- Wikipedia
   #+END_QUOTE
-  
-  
-  
+
 * Kinda, but really...
-  
-  
+
 * Git is an inter-dimensional, time traveling spaceship
-  
+
   [[./images/tardis.png]]
-  
-  
-* How the spaceship is built
+
+* How git is built
 
 * Object Database
 
   - Contained within the /.git/ directory
   - A key-value store (Hashes => Contents)
-    
+
 ** Hashing
 
   - INPUT: Any amount of data
-  - OUTPUT: Fixed-size digest 
-  #+BEGIN_SRC
+  - OUTPUT: Fixed-size digest
+  #+BEGIN_SRC shell
   => echo "short thing to hash" | openssl dgst -sha1
   199e4f3bcf4b1ea640949b11f44d1a48f4bacf6c
 
@@ -78,9 +71,9 @@
   - 3 general types of objects...
 
 ** Blob Objects
-  
+
   - Contents of a files
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => ls
   total 16
   drwxr-xr-x   7 aaronk  staff   238B Jun 16 09:11 .
@@ -92,22 +85,22 @@
   drwxr-xr-x  16 aaronk  staff   544B Jun 15 16:10 reveal.js
   #+END_SRC
 
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git hash-object README
   59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15
   #+END_SRC
 
 ** Tree Objects
-  
+
   - Akin to UNIX directory entries
   - Group blobs and other tree objects
   - Describes the file system mode, type, hash, and name of contents
   - Hashed by its metadata and its content's hashes
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   04000es0 tree 37575c28afe11142022728378a61290db6944b55 git_internals
   #+END_SRC
 
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git ls-tree 37575c28afe11142022728378a61290db6944b55
   100644 blob b604cebcf51df85a482bb3fa512f4b35b779904e git_internals.html
   100644 blob c26e176b07a6ca31ce24944f77724971b1f70036 git_internals.org
@@ -115,17 +108,17 @@
   #+END_SRC
 
 ** Commit Objects
-  
+
   - Identified by Hash of the root tree object
   - Records entire state of the repository at a point in time
   - Commit Meta-data
     - Author, subject and log message, when it was made
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git log --oneline -n 1
   ef971ae add README
   #+END_SRC
 
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git ls-tree ef971ae
   100644 blob b2a68171122dcbfdccdb9a9e824a567c6ef9fed2 .gitmodules
   100644 blob 59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15 README
@@ -133,8 +126,7 @@
   160000 commit f0cf1f54d04088d241acf81eef42bd878a9f02ba reveal.js
   #+END_SRC
 
-  
-* How the spaceship moves 
+* How git moves through space and time
 
 ** "Legacy" Version Control Systems
 
@@ -142,18 +134,17 @@
   - A list of changes to a collection of files
 
 ** Git
+
   [[./images/snapshots.png]]
 
   - A stream of snapshots of the repository's file system
   - If a file hasn't changed, a reference to the previous version is stored
 
-
-  
 * Managing Changes
 
   - 3 states of changes
     - Modified
-    - Staged for commit 
+    - Staged for commit
     - Committed
 
 **  Working Directory
@@ -169,49 +160,46 @@
   - A file in the *.git* directory
   - Groups changes across repository contents as a logical change set
   - Add changes to the index with
-    #+BEGIN_SRC bash
-    => git add 
+    #+BEGIN_SRC shell
+    => git add
     #+END_SRC
 
 ** Repository
-  
+
   - Is the *.git* directory at the project root
   - Persistent, compressed object database
   - Changes become permanent residents of the repository through Commits
-    #+BEGIN_SRC bash
-    => git commit 
+    #+BEGIN_SRC shell
+    => git commit
     #+END_SRC
 
-    
-* History
+* History (time travel)
 
   - A commit object knows the hash of the commit that came before it
   - It is easy to detect when history has been rewritten
     - Some parent commit's hash will fail hash validation
 
-      
-* Branches
+* Branches (interdimensional travel)
 
   - Two or more commits share the same parent
   - Use to segregate and track unrelated change sets
   - Branches are CHEAP! (it's just a parent commit ref)
   [[./images/branches.png]]
 
-  
-* HEAD
+* References (refs)
 
   - Mapping of a *Name => Commit*
+  - HEAD ref is the "last commit" in a timeline
   - Adding a commit on a branch reassigns the HEAD ref to the new commit
   [[./images/heads.png]]
 
 
 ** Spoiler Alert
 
-  - All HEADs are created equal
-  - Nothing special about the master or develop HEAD refs
+  - All refs are created equal
+  - Nothing special about the master or develop refs
   - It's just a naming convention
 
-    
 * Changing the course of history
 
   - Commit E is a mistake and we want to remove it
@@ -221,7 +209,7 @@
 ** Changing the course of history
 
   - Change the feature/xyz HEAD ref Commit D
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git reset HEAD~1
   #+END_SRC
   [[./images/timetravel2.png]]
@@ -230,7 +218,7 @@
 ** Changing the course of history
 
   - Make a new commit
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git add -all
   => git commit
   #+END_SRC
@@ -240,17 +228,15 @@
 ** Changing the course of history
 
   - Unreachable commits are removed from the repository
-  #+BEGIN_SRC bash
+  #+BEGIN_SRC shell
   => git gc
   #+END_SRC
   [[./images/timetravel3.png]]
 
-  
 * Changing history itself
 
   - Rewrite a point in history to create a new version of reality
   - Called *Rebasing*
-
 
 ** Rebasing
 
@@ -263,11 +249,11 @@
   - Go back in time and make the commit you wish you had instead of commit B -- commit E
   [[./images/rebasing2.png]]
 
-  
+
 ** Rebasing
 
   - OK, now what?
-  - Can't *just* move the feature/xyz HEAD
+  - Can't *just* move the feature/xyz ref
   - We'd lose commits C and D
   [[./images/rebasing3.png]]
 
@@ -280,7 +266,6 @@
   - Then applies the diffs as new commits on top of E
   [[./images/rebasing4.png]]
 
-  
 * With great power...
 
   - Changing shared history can be bad
@@ -289,12 +274,10 @@
   - Usually safe with private timelines (feature, hotfix)
   - But, it can be really useful for keeping history "clean"
 
-
 * Summary
 
   - Nomenclature: Repository, Hash, Object, Head, Index, etc
   - How git tracks time and space internally
-
 
 * Sources / Resources
 
