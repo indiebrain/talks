@@ -3,10 +3,6 @@
 #+EMAIL:
 #+OPTIONS: toc:nil
 #+OPTIONS: num:nil
-#+OPTIONS: reveal_single_file:t
-#+REVEAL_ROOT: ../reveal.js
-#+REVEAL_THEME: black
-#+REVEAL_TRANS: default
 
 * What is a workflow?
 
@@ -14,47 +10,46 @@
 
 * Goals of VCS Workflow
 
-** Reason-ability
+* Reason-ability
 
   - Hotfix: What is the state of production?
   - Release: What, exactly, are we about to deploy?
   - Posthumous analysis: What was deployed last week?
 
-** Communication
+* Communication
 
   - Body of Work -- "These commits are related"
   - Semantic history
 
-** Semantic History
+* Semantic History
 
   - History is project metadata
   - History should describe things that code can't
   - History is for others
     - "Tomorrow You" is an other
 
-** Semantic History
+* Semantic History
 
   - Intent: What does this changeset hope to accomplish
   - Motivation: The driving business, cultural forces causing the change to happen
 
-** Delivery
+* Delivery
 
   [[./images/shipit.png]]
 
 * Workflow
-
 * Common Sources of Truth
 
   - Permanent, shared refs of the repository
 
-** master
+* master
 
   - Canonical view of production state
   - Always stable
   - Change *always*, ultimately, flows *to* here
   - Change *never* originates *from* here
 
-** develop
+* develop
 
   - Master + Features going out in next release
   - Should always be in a state from which a release candidate branch can be created for testing
@@ -67,7 +62,7 @@
 
   - Transient, short-lived
 
-** feature
+* feature
 
   - Containment unit for features under construction
   - Branches off from develop
@@ -76,11 +71,11 @@
   - Naming Convention - feature/feature_name
   - Many branches of this type can exist at any given time
 
-** feature
+* feature
 
   [[./images/feature-branches.png]]
 
-** release
+* release
 
   - Staging area for a release candidate
   - Branches off from develop
@@ -89,11 +84,11 @@
   - Naming Convention - release/yyyy-mm-dd
   - One and only one branch of this type can exist at any given time
 
-** release
+* release
 
   [[./images/release-branches.png]]
 
-** hotfix
+* hotfix
 
   - Containment unit for a fix to an issue found in production
   - Branches off from master
@@ -102,7 +97,7 @@
   - Naming Convention - hotfix/defect_id_and_description
   - Many branches of this type can exist at any given time
 
-** hotfix
+* hotfix
 
   [[./images/hotfix-branches.png]]
 

@@ -3,10 +3,6 @@
 #+EMAIL:
 #+OPTIONS: toc:nil
 #+OPTIONS: num:nil
-#+OPTIONS: reveal_single_file:t
-#+REVEAL_ROOT: ../reveal.js
-#+REVEAL_THEME: black
-#+REVEAL_TRANS: default
 
 * This talk is
 
@@ -29,19 +25,17 @@
   #+END_QUOTE
 
 * Kinda, but really...
-
 * Git is an inter-dimensional, time traveling spaceship
 
   [[./images/tardis.png]]
 
 * How git is built
-
 * Object Database
 
   - Contained within the /.git/ directory
   - A key-value store (Hashes => Contents)
 
-** Hashing
+* Hashing
 
   - INPUT: Any amount of data
   - OUTPUT: Fixed-size digest
@@ -53,24 +47,24 @@
   a75402ee333f2f6d5937ff2be031b5945caa9c1b
   #+END_SRC
 
-** Identity
+* Identity
 
   - Git generates a hash for any piece of information it's told to save
   - Objects are identified *ONLY* by the hash of their contents
   - Hashes are unambiguous identifiers
     - By contrast, file system names and paths only tell you where; not what
 
-** Integrity
+* Integrity
 
   - Hashing makes it easy to detect bit-level storage errors
   - Hashing makes it difficult to falsify objects
 
-** Objects
+* Objects
 
   - Generic term for a *HASH => Contents* relationship
   - 3 general types of objects...
 
-** Blob Objects
+* Blob Objects
 
   - Contents of a files
   #+BEGIN_SRC shell
@@ -90,7 +84,7 @@
   59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15
   #+END_SRC
 
-** Tree Objects
+* Tree Objects
 
   - Akin to UNIX directory entries
   - Group blobs and other tree objects
@@ -107,7 +101,7 @@
   040000 tree 01130c2e51b2cff13d89fa3710d2746168c762f9 images
   #+END_SRC
 
-** Commit Objects
+* Commit Objects
 
   - Identified by Hash of the root tree object
   - Records entire state of the repository at a point in time
@@ -128,12 +122,12 @@
 
 * How git moves through space and time
 
-** "Legacy" Version Control Systems
+* "Legacy" Version Control Systems
 
   [[./images/deltas.png]]
   - A list of changes to a collection of files
 
-** Git
+* Git
 
   [[./images/snapshots.png]]
 
@@ -147,14 +141,14 @@
     - Staged for commit
     - Committed
 
-**  Working Directory
+*  Working Directory
 
   - Project root directory
   - Contents are at a single version state of the project
   - Files are pulled out of the git object database and put onto disk to be modified
   - Changes are introduced here
 
-** Index
+* Index
 
   - Commit staging area
   - A file in the *.git* directory
@@ -164,7 +158,7 @@
     => git add
     #+END_SRC
 
-** Repository
+* Repository
 
   - Is the *.git* directory at the project root
   - Persistent, compressed object database
@@ -194,7 +188,7 @@
   [[./images/heads.png]]
 
 
-** Spoiler Alert
+* Spoiler Alert
 
   - All refs are created equal
   - Nothing special about the master or develop refs
@@ -206,7 +200,7 @@
   [[./images/timetravel1.png]]
 
 
-** Changing the course of history
+* Changing the course of history
 
   - Change the feature/xyz HEAD ref Commit D
   #+BEGIN_SRC shell
@@ -215,7 +209,7 @@
   [[./images/timetravel2.png]]
 
 
-** Changing the course of history
+* Changing the course of history
 
   - Make a new commit
   #+BEGIN_SRC shell
@@ -225,7 +219,7 @@
   [[./images/timetravel3.png]]
 
 
-** Changing the course of history
+* Changing the course of history
 
   - Unreachable commits are removed from the repository
   #+BEGIN_SRC shell
@@ -238,19 +232,19 @@
   - Rewrite a point in history to create a new version of reality
   - Called *Rebasing*
 
-** Rebasing
+* Rebasing
 
   - What if we forgot to add something as part of commit B
   [[./images/rebasing1.png]]
 
 
-** Rebasing
+* Rebasing
 
   - Go back in time and make the commit you wish you had instead of commit B -- commit E
   [[./images/rebasing2.png]]
 
 
-** Rebasing
+* Rebasing
 
   - OK, now what?
   - Can't *just* move the feature/xyz ref
@@ -258,7 +252,7 @@
   [[./images/rebasing3.png]]
 
 
-** Rebasing
+* Rebasing
 
   - "Replaying commits"
   - Git can calculate diffs between parent and child commits
