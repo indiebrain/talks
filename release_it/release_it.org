@@ -1,0 +1,217 @@
+#+TITLE: Release It!
+#+SUBTITLE: A brief, and messy, history of releasing software
+#+AUTHOR: Aaron Kuehler
+#+EMAIL:
+#+OPTIONS: toc:nil
+#+OPTIONS: num:nil
+
+* In the Beginning-ish
+
+  c. 1945-1965
+
+  ENIAC 200Hz
+
+* Computation Explosion
+
+  - Compute power growth
+  - Moore's Law
+
+* Computation Explosion
+
+  [[./images/dumpster-fire.jpeg]]
+
+* Computation Explosion
+
+  - Higher Complexity Programs
+
+  #+BEGIN_QUOTE
+  Software Crisis
+
+  - 1968 NATO Software Engineering Conference
+  #+END_QUOTE
+
+* Computation Explosion
+
+  - High risk
+  - High cost
+  - Low quality
+  - Inefficient
+  - Low business value
+
+* Computation Explosion
+
+  [[./images/sadface.png]]
+
+* Managing Complexity
+
+  [[./images/organizized.jpeg]]
+
+* Managing Complexity
+
+  - Planning
+  - Planning
+  - Planning
+  - Planning
+  - Planning
+  - Planning
+  - Planning
+
+* Managing Complexity
+
+  [[./images/gantt-pro-product-release-template.jpg]]
+
+* Managing Complexity
+
+  Release every X months, years, or...
+
+* +Managing+ Complexity
+
+  *NEVER*
+
+* +Managing+ Complexity
+
+  #+BEGIN_QUOTE
+  "No plan survives first contact with the enemy"
+
+  -- General Helmuth von Moltke
+  #+END_QUOTE
+ [[./images/von-moltke.jpg]]
+
+* +Managing+ Complexity
+
+  - Large Plans => Greater Dependency => Risk
+  - Long Lead Time for Features
+  - Long Lead Time for Bug Fixes
+  - Too Rigid
+
+* +Managing+ Complexity
+
+  [[./images/crying-face.png]]
+
+* Eating the Elephant
+
+  [[./images/elephant.jpg]]
+
+* => 1991
+
+  Grady Booch: The Booch Method
+  [[./images/Grady_Booch.jpg]]
+
+* The Booch Method
+
+  A bunch of nearly irrelevant-to-this discussion stuff about modeling software and...
+
+* The Booch Method
+
+  #+BEGIN_QUOTE
+  If the business needs change more frequently than we're shipping software, then we need the ability to write software in a way which responds to such change
+
+  - (Not an actual quote)
+  #+END_QUOTE
+
+* => Extreme Programming
+
+  [[./images/extreme-programming.png]]
+
+* Extreme Programming
+
+  #+BEGIN_QUOTE
+  Organize people to produce better quality software, more productively.
+  #+END_QUOTE
+
+  - Kent Beck, Ward Cunningham, and Ron Jeffries
+  - Chrysler Comprehensive Compensation System (C3) project
+
+* Extreme Programming
+
+  - Feedback
+  - Assume Simplicity
+  - Embrace Change
+
+* => Agility
+
+  #+BEGIN_QUOTE
+   We are uncovering better ways of developing
+   software by doing it and helping others do it.
+   Through this work we have come to value:
+
+   *Individuals and interactions* over processes and tools
+   *Working software* over comprehensive documentation
+   *Customer collaboration* over contract negotiation
+   *Responding to change* over following a plan
+
+   That is, while there is value in the items on
+   the right, we value the items on the left more.
+
+   -- Manifesto for Agile Software Development
+  #+END_QUOTE
+
+* "a"gility
+
+  - Discover Early
+  - Respond to Feedback
+  - Respond to Change
+
+* Continuous Integration
+
+  #+BEGIN_QUOTE
+  The practice of merging development working copies to a "mainline" stream of change as early as possible.
+
+  -- Grady Booch
+  #+END_QUOTE
+
+* Continuous Integration
+
+  - Automated Testing
+  - Feature Toggles
+
+* Robot Invasion
+
+  [[./images/robot-invasion.jpg]]
+
+* Robot Invasion
+
+  Automated Integration / Build Pipeline Tooling
+
+  - Travis CI
+  - Circle CI
+  - Semaphore CI
+  - Thoughtworks GoCD
+  - CodeShip
+  - Atlassian Bamboo
+  - Jenkins (+Oracle Hudson+)
+  - ...
+
+* Continuous Delivery
+
+  #+BEGIN_QUOTE
+  Software *can* reliably be released at ANY time.
+  #+END_QUOTE
+
+* Continuous Delivery
+
+  [[./images/signalman.png]]
+
+* Robot Invasion (cont.)
+
+  [[./images/robot-invasion.jpg]]
+
+* Continuous Deployment
+
+  #+BEGIN_QUOTE
+   If it's green, the robot ships it.
+  #+END_QUOTE
+
+* Continuous Deployment
+
+  [[./images/robot-shipping.jpg]]
+
+* Continuous Deployment
+
+  [[./images/happy-face.png]]
+
+* References
+
+  - [[https://en.wikipedia.org/wiki/Booch_method][The Booch Method]]
+  - [[https://www.pearson.com/us/higher-education/program/Beck-Extreme-Programming-Explained-Embrace-Change-2nd-Edition/PGM155384.html][Extreme Programming Explained: Embrace Change]]
+  - [[http://shop.oreilly.com/product/9780596527679.do][The Art of Agile Software Development]]
