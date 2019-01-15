@@ -1,0 +1,29 @@
+* Description
+
+#+BEGIN_QUOTE
+The extensible, customizable, self-documenting, real-time display editor
+#+END_QUOTE
+
+A *family* of editors.
+
+
+
+* History
+
+- 1976
+- Inspired by TECO editor
+- Carl Mikkelsen, David A. Moon and Guy L. Steele Jr
+- "Editor of MACroS"
+- 1984
+- Richard Stallman
+- GNU Emacs => [[https://www.gnu.org/][GNU Project]]
+
+* Concepts
+
+- Buffers
+- Windows and Frames
+- Mode-line, Echo Area, Minibuffer
+- Points and Marks
+- Killing, Yanking (CUA)
+- Configuration (.emacs.d, init.el, .emacs)
+- Modes - Major vs Minor
