@@ -191,20 +191,20 @@
 * Spoiler Alert
 
   - All refs are created equal
-  - Nothing special about the master or develop refs
-  - It's just a naming convention
+  - Nothing special about the master ref
+  - master is just a naming convention for the shared timeline
 
 * Changing the course of history
 
-  - Commit E is a mistake and we want to remove it
+  - Commit D is a mistake and we want to remove it
   [[./images/timetravel1.png]]
 
 
 * Changing the course of history
 
-  - Change the feature/xyz HEAD ref Commit D
+  - Change the feature HEAD ref Commit C
   #+BEGIN_SRC shell
-  => git reset HEAD~1
+  => git reset c
   #+END_SRC
   [[./images/timetravel2.png]]
 
@@ -234,38 +234,46 @@
 
 * Rebasing
 
-  - What if we forgot to add something as part of commit B
+  - When feature branch is created its base is commit B
+  - master advances its history independent of feature
+  - We want the HEAD of master to be our new base for feature
   [[./images/rebasing1.png]]
 
 
 * Rebasing
 
-  - Go back in time and make the commit you wish you had instead of commit B -- commit E
+  - Rebase feature onto master
+  #+BEGIN_SRC shell
+  => git checkout feature
+  => git rebase master
+  #+END_SRC
+
+
+
+* Rebasing
+
+  - Step 1: Capture changes since the common ancestor off into a replay list
   [[./images/rebasing2.png]]
 
 
 * Rebasing
 
-  - OK, now what?
-  - Can't *just* move the feature/xyz ref
-  - We'd lose commits C and D
+  - Step 2: Move feature ref to the new base's HEAD ref (master)
   [[./images/rebasing3.png]]
 
 
 * Rebasing
 
-  - "Replaying commits"
-  - Git can calculate diffs between parent and child commits
-  - Rebasing does this for all commits after B
-  - Then applies the diffs as new commits on top of E
+  - Step 3: Replay the commits from feature onto the new base
   [[./images/rebasing4.png]]
+
 
 * With great power...
 
   - Changing shared history can be bad
   - Leaves fellow time travelers stuck in unreferenced, parallel dimensions
-  - Never on rebase shared timelines (develop, master, release)
-  - Usually safe with private timelines (feature, hotfix)
+  - Never on rebase shared timelines
+  - Usually safe with private timelines
   - But, it can be really useful for keeping history "clean"
 
 * Summary
