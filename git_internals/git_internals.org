@@ -4,286 +4,304 @@
 #+OPTIONS: toc:nil
 #+OPTIONS: num:nil
 
-* This talk is
+* This "talk" is
 
-  a high level tour of git's internals
-
-* This talk isn't
-
-  a git tutorial
+- a discussion, not a talk
+- Aaron's brain dump of HOW git does what it does, not another git tutorial
 
 * What is Git?
 
-* You might have heard...
+#+BEGIN_QUOTE
+Git (/ɡɪt/) is a distributed revision control system with an emphasis on speed, data integrity, and support for distributed, non-linear workflows and BLAH BLAH BLAH BLAH BLAH BLAH...
 
-  #+BEGIN_QUOTE
-  Git (/ɡɪt/) is a distributed revision control system with an
-  emphasis on speed, data integrity, and support for distributed,
-  non-linear workflows and BLAH BLAH BLAH BLAH BLAH BLAH...
+-- Wikipedia
+#+END_QUOTE
 
-  -- Wikipedia
-  #+END_QUOTE
+* What is git?
 
-* Kinda, but really...
-* Git is an inter-dimensional, time traveling spaceship
+...but really, Git is an inter-dimensional, time traveling spaceship
 
-  [[./images/tardis.png]]
+[[./images/tardis.png]]
 
-* How git is built
+* How git stores state
+
 * Object Database
 
-  - Contained within the /.git/ directory
-  - A key-value store (Hashes => Contents)
+- Contained within the /.git/ directory
+- A key-value store (Hashes => Contents)
 
 * Hashing
 
-  - INPUT: Any amount of data
-  - OUTPUT: Fixed-size digest
-  #+BEGIN_SRC shell
-  => echo "short thing to hash" | openssl dgst -sha1
-  199e4f3bcf4b1ea640949b11f44d1a48f4bacf6c
+- AKA: digest
+- Any length input
+- Fixed size output
 
-  => echo "loooooooong thing to hash" | openssl dgst -sha1
-  a75402ee333f2f6d5937ff2be031b5945caa9c1b
-  #+END_SRC
+#+BEGIN_SRC shell
+$ echo "short input" | openssl dgst -sha1
+d667e29abe6f10c3e5ef1cb9a626dd0231cb0192
+
+$ echo "loooooooooooooooooooong input" | openssl dgst -sha1
+825c52f2c29fbcd576180062e8701411a9f4d1f1
+#+END_SRC
 
 * Identity
 
-  - Git generates a hash for any piece of information it's told to save
-  - Objects are identified *ONLY* by the hash of their contents
-  - Hashes are unambiguous identifiers
-    - By contrast, file system names and paths only tell you where; not what
+- Git generates a hash for any piece of information it's told to save
+- Objects are identified *ONLY* by the hash of their contents
+- Hashes are unambiguous identifiers
+  - By contrast, file system names and paths only tell you where; not what
 
 * Integrity
 
-  - Hashing makes it easy to detect bit-level storage errors
-  - Hashing makes it difficult to falsify objects
+- Hashing makes it easy to detect bit-level storage errors
+- Hashing makes it difficult to falsify objects
 
 * Objects
 
-  - Generic term for a *HASH => Contents* relationship
-  - 3 general types of objects...
+- Generic term for a *Hash => Contents* relationship
+- 3 general types of objects
 
 * Blob Objects
 
-  - Contents of a files
-  #+BEGIN_SRC shell
-  => ls
-  total 16
-  drwxr-xr-x   7 aaronk  staff   238B Jun 16 09:11 .
-  drwxr-xr-x   9 aaronk  staff   306B Jun 15 15:46 ..
-  drwxr-xr-x  16 aaronk  staff   544B Jun 16 09:11 .git
-  -rw-r--r--   1 aaronk  staff    86B Jun 15 16:10 .gitmodules
-  -rw-r--r--   1 aaronk  staff    54B Jun 16 09:10 README
-  drwxr-xr-x   6 aaronk  staff   204B Jun 16 09:07 git_internals
-  drwxr-xr-x  16 aaronk  staff   544B Jun 15 16:10 reveal.js
-  #+END_SRC
+- Contents of a files
 
-  #+BEGIN_SRC shell
-  => git hash-object README
-  59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15
-  #+END_SRC
+#+BEGIN_SRC shell
+$ ls -lAh
+total 16
+-rw-r--r--   1 max  staff   7.1K Mar  1 16:29 git_internals.org
+drwxr-xr-x  18 max  staff   576B Mar  1 16:10 images
+#+END_SRC
+
+#+BEGIN_SRC shell
+$ git hash-object git_internals.org
+c7706ada7e93ebfccbd7381599b820ab7f13b39f
+#+END_SRC
 
 * Tree Objects
 
-  - Akin to UNIX directory entries
-  - Group blobs and other tree objects
-  - Describes the file system mode, type, hash, and name of contents
-  - Hashed by its metadata and its content's hashes
-  #+BEGIN_SRC shell
-  04000es0 tree 37575c28afe11142022728378a61290db6944b55 git_internals
-  #+END_SRC
+- Akin to UNIX directory inodes
+- Group blobs and other tree objects
+- Describes the file system mode, type, hash, and name of contents
+- Hashed by its metadata and its content's hashes
 
-  #+BEGIN_SRC shell
-  => git ls-tree 37575c28afe11142022728378a61290db6944b55
-  100644 blob b604cebcf51df85a482bb3fa512f4b35b779904e git_internals.html
-  100644 blob c26e176b07a6ca31ce24944f77724971b1f70036 git_internals.org
-  040000 tree 01130c2e51b2cff13d89fa3710d2746168c762f9 images
-  #+END_SRC
+#+BEGIN_SRC shell
+$ git cat-file -p master^{tree}
+100644 blob 59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15	README
+040000 tree 701ba2512fd84633fd79c80006cba770a17adaa2	git_internals
+040000 tree 6c9be741e089679556922e44e812b0f629ac6ea5	git_workflow
+040000 tree ef0f5e6baa8f71b863c080233adbb17cb0909053	release_it
+#+END_SRC
+
+#+BEGIN_SRC shell
+$ git ls-tree 701ba2512fd84633fd79c80006cba770a17adaa2
+100644 blob 9507064abba48156cbabd07a2109c5b7bee8906a	git_internals.org
+040000 tree d0edb1ebae501ce4082e2f7f84b403f7269bc130	images
+#+END_SRC
 
 * Commit Objects
 
-  - Identified by Hash of the root tree object
-  - Records entire state of the repository at a point in time
-  - Commit Meta-data
-    - Author, subject and log message, when it was made
-  #+BEGIN_SRC shell
-  => git log --oneline -n 1
-  ef971ae add README
-  #+END_SRC
+- Identified by Hash of the root tree object
+- Records entire state of the repository at a point in time
+- A tree with more metadata
+  - Parent commit, Author, subject and log message, commit date, etc
 
-  #+BEGIN_SRC shell
-  => git ls-tree ef971ae
-  100644 blob b2a68171122dcbfdccdb9a9e824a567c6ef9fed2 .gitmodules
-  100644 blob 59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15 README
-  040000 tree 37575c28afe11142022728378a61290db6944b55 git_internals
-  160000 commit f0cf1f54d04088d241acf81eef42bd878a9f02ba reveal.js
-  #+END_SRC
+#+BEGIN_SRC shell
+$ git log --oneline -n 1
+a461319 (HEAD -> master, origin/master) Update the content of the [snip...]
+#+END_SRC
+
+#+BEGIN_SRC shell
+$ git ls-tree a461319
+100644 blob 59e1f9a827c70a7ab74c4ead6ed3d71be53ebb15	README
+040000 tree 701ba2512fd84633fd79c80006cba770a17adaa2	git_internals
+040000 tree 6c9be741e089679556922e44e812b0f629ac6ea5	git_workflow
+040000 tree ef0f5e6baa8f71b863c080233adbb17cb0909053	release_it
+#+END_SRC
 
 * How git moves through space and time
 
 * "Legacy" Version Control Systems
 
-  [[./images/deltas.png]]
-  - A list of changes to a collection of files
+[[./images/deltas.png]]
+
+- CVS, SVN, etc
+- List of patches/changes to a collection of files
+
 
 * Git
 
-  [[./images/snapshots.png]]
+[[./images/snapshots.png]]
 
-  - A stream of snapshots of the repository's file system
-  - If a file hasn't changed, a reference to the previous version is stored
+- A stream of content snapshots of the repository's file system
+- If a file hasn't changed, a reference to the previous version is stored
 
 * Managing Changes
 
-  - 3 states of changes
-    - Modified
-    - Staged for commit
-    - Committed
+- 3 states of changes
+  - Modified (in the Working Tree)
+  - Staged (in the Index)
+  - Committed (in a Commit object)
 
-*  Working Directory
+*  Working Tree
 
   - Project root directory
-  - Contents are at a single version state of the project
-  - Files are pulled out of the git object database and put onto disk to be modified
-  - Changes are introduced here
+  - This is where you work
+  - Contents are at a base ref + (optionally, uncommitted / un-staged changes)
+  - Trees / blobs are copied from repo and placed on disk during a =checkout= or =reset=
 
 * Index
 
-  - Commit staging area
-  - A file in the *.git* directory
-  - Groups changes across repository contents as a logical change set
-  - Add changes to the index with
-    #+BEGIN_SRC shell
-    => git add
-    #+END_SRC
+- Staging area for building a Commit object
+- A file in the *.git* directory
+- Groups content changes across Working Tree as a logical change set
+- Add changes to the index with:
+
+#+BEGIN_SRC shell
+$ git add [paths]
+#+END_SRC
+
+*Pro tip*: or stage individual hunks of changes with a "patch-wise add"
+
+#+BEGIN_SRC shell
+$ git add -p
+#+END_SRC
 
 * Repository
 
-  - Is the *.git* directory at the project root
-  - Persistent, compressed object database
-  - Changes become permanent residents of the repository through Commits
-    #+BEGIN_SRC shell
-    => git commit
-    #+END_SRC
+- Is the *.git* directory at the project root
+- Persistent, compressed object database
+- Changes become permanent residents of the repository through Commits
 
-* History (time travel)
+#+BEGIN_SRC shell
+$ git commit
+#+END_SRC
 
-  - A commit object knows the hash of the commit that came before it
-  - It is easy to detect when history has been rewritten
-    - Some parent commit's hash will fail hash validation
+* Time travel (History)
 
-* Branches (interdimensional travel)
+- A commit object knows the identity/hash of the commit which preceded
+- Can detect when the preceding timeline has changed
+- Parent commit identity/hash will fail comparison
+* Inter-Dimension Travel (Branching)
 
-  - Two or more commits share the same parent
-  - Use to segregate and track unrelated change sets
-  - Branches are CHEAP! (it's just a parent commit ref)
-  [[./images/branches.png]]
+- Two or more commits share the same parent
+- Use to segregate and track unrelated change sets
+- Branches are CHEAP! (it's just a parent commit ref)
+
+[[./images/branches.png]]
 
 * References (refs)
 
-  - Mapping of a *Name => Commit*
-  - HEAD ref is the "last commit" in a timeline
-  - Adding a commit on a branch reassigns the HEAD ref to the new commit
-  [[./images/heads.png]]
+- Mapping of a *Name => Commit*
+- HEAD ref is the "last commit" in a timeline/branch
+- Adding a commit on a branch reassigns the HEAD ref to the new commit
 
+[[./images/heads.png]]
 
 * Spoiler Alert
 
-  - All refs are created equal
-  - Nothing special about the master ref
-  - master is just a naming convention for the shared timeline
+- All refs are created equal
+- Nothing special about the master ref
+- master is just a naming convention for the shared timeline
 
 * Changing the course of history
 
-  - Commit D is a mistake and we want to remove it
-  [[./images/timetravel1.png]]
+- Commit D is a mistake and we want to remove it
 
-
-* Changing the course of history
-
-  - Change the feature HEAD ref Commit C
-  #+BEGIN_SRC shell
-  => git reset c
-  #+END_SRC
-  [[./images/timetravel2.png]]
+[[./images/timetravel1.png]]
 
 
 * Changing the course of history
 
-  - Make a new commit
-  #+BEGIN_SRC shell
-  => git add -all
-  => git commit
-  #+END_SRC
-  [[./images/timetravel3.png]]
+- Change the feature HEAD ref Commit C
+
+#+BEGIN_SRC shell
+$ git reset [c's hash]
+#+END_SRC
+
+[[./images/timetravel2.png]]
 
 
 * Changing the course of history
 
-  - Unreachable commits are removed from the repository
-  #+BEGIN_SRC shell
-  => git gc
-  #+END_SRC
-  [[./images/timetravel3.png]]
+- Make a new commit
+
+#+BEGIN_SRC shell
+$ git add -all
+$ git commit
+#+END_SRC
+
+[[./images/timetravel3.png]]
+
+
+* Changing the course of history
+
+- Unreachable commits are removed from the repository
+
+#+BEGIN_SRC shell
+$ git gc
+#+END_SRC
+
+[[./images/timetravel3.png]]
 
 * Changing history itself
 
-  - Rewrite a point in history to create a new version of reality
-  - Called *Rebasing*
+- Rewrite a point in history to create a new version of reality
+- Called *Rebasing*
 
 * Rebasing
 
-  - When feature branch is created its base is commit B
-  - master advances its history independent of feature
-  - We want the HEAD of master to be our new base for feature
-  [[./images/rebasing1.png]]
+- When feature branch is created its base is commit B
+- master advances its history independent of feature
+- We want the HEAD of master to be our new base for feature
 
-
-* Rebasing
-
-  - Rebase feature onto master
-  #+BEGIN_SRC shell
-  => git checkout feature
-  => git rebase master
-  #+END_SRC
-
+[[./images/rebasing1.png]]
 
 
 * Rebasing
 
-  - Step 1: Capture changes since the common ancestor off into a replay list
-  [[./images/rebasing2.png]]
+- Rebase feature onto master
+
+#+BEGIN_SRC shell
+$ git checkout feature
+$ git rebase master
+#+END_SRC
+
 
 
 * Rebasing
 
-  - Step 2: Move feature ref to the new base's HEAD ref (master)
-  [[./images/rebasing3.png]]
+- Step 1: Capture changes since the common ancestor off into a replay list
+[[./images/rebasing2.png]]
 
 
 * Rebasing
 
-  - Step 3: Replay the commits from feature onto the new base
-  [[./images/rebasing4.png]]
+- Step 2: Move feature ref to the new base's HEAD ref (master)
+[[./images/rebasing3.png]]
+
+
+* Rebasing
+
+- Step 3: Replay the commits from feature onto the new base
+[[./images/rebasing4.png]]
 
 
 * With great power...
 
-  - Changing shared history can be bad
-  - Leaves fellow time travelers stuck in unreferenced, parallel dimensions
-  - Never on rebase shared timelines
-  - Usually safe with private timelines
-  - But, it can be really useful for keeping history "clean"
+- Changing shared history can be bad
+- Leaves fellow Time Lords stuck in unreferenced, parallel dimensions
+- Never on rebase shared timelines
+- Usually safe with private timelines
+- But, it can be really useful for keeping history "clean"
 
 * Summary
 
-  - Nomenclature: Repository, Hash, Object, Head, Index, etc
-  - How git tracks time and space internally
+- Nomenclature: Repository, Hash, Object, Head, Index, etc
+- How git stores state across time and space internally
 
 * Sources / Resources
 
-  - Slides (http://bit.ly/talks_git_internals)
-  - Pro Git (http://git-scm.com/book/en/v2)
-  - Git From the Bottom Up (http://ftp.newartisans.com/pub/git.from.bottom.up.pdf)
-  - Wikipedia (https://en.wikipedia.org/?title=Git_(software))
+- Slides (http://bit.ly/talks_git_internals)
+- Pro Git (http://git-scm.com/book/en/v2)
+- Git From the Bottom Up (http://ftp.newartisans.com/pub/git.from.bottom.up.pdf)
+- Wikipedia (https://en.wikipedia.org/?title=Git_(software))
