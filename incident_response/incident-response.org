@@ -1,0 +1,38 @@
+#+TITLE: When you are engulfed in flames - an incident response tale
+#+AUTHOR: Aaron Kuehler <aaron.kuehler@powerhrg.com>
+#+DESCRIPTION: An overview of incident repsonse managment and tooling
+
+* Why do we care about process?
+
+- You can't "improve" what you don't measure
+- Prevent catastrophic "collaboration"
+- Manage expectations and keep stakeholders informed
+
+* Anatomy of an Incident
+
+- Identifying
+- Responding
+- Investigating
+- Acting
+- Monitoring
+- Postmortem
+
+* Creating incidents
+
+- Automation
+- Manual
+
+* Getting help
+
+- Merging incidents
+- Add responders
+
+* Tips
+
+- Dance in public; capture context and over-communicate
+- Facts before decisions
+
+
+* Resources
+
+- [[https://portal.powerapp.cloud/docs/default/component/incidents/conducting-a-response/][Guide - Conducting a response]]
