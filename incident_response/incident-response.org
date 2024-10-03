@@ -1,38 +1,23 @@
 #+TITLE: When you are engulfed in flames - an incident response tale
 #+AUTHOR: Aaron Kuehler <aaron.kuehler@powerhrg.com>
-#+DESCRIPTION: An overview of incident repsonse managment and tooling
+#+DESCRIPTION: An overview how to get help when responding to an incident
 
-* Why do we care about process?
+* Incident Response at Power
 
-- You can't "improve" what you don't measure
-- Prevent catastrophic "collaboration"
-- Manage expectations and keep stakeholders informed
+- [[https://cloud.powerhrg.com/index.php/s/JqsOSqKsJHI1H2I][Video: Incident Response at Power]]
+- [[https://portal.powerapp.cloud/docs/default/component/incidents/conducting-a-response/][Guide: Conducting a response]]
+- [[https://cloud.powerhrg.com/index.php/s/JqsOSqKsJHI1H2I][Video: Incident Response at Power]]
+- [[https://github.com/powerhome/incidents?tab=readme-ov-file#business-technology-incident-response-plan][Repository: Postmortems]]
 
-* Anatomy of an Incident
-
-- Identifying
-- Responding
-- Investigating
-- Acting
-- Monitoring
-- Postmortem
-
-* Creating incidents
+* Where do incidents come from?
 
 - Automation
-- Manual
+  - [[https://portal.powerapp.cloud/docs/default/system/pac/users/applications/troubleshooting/01-ALERTMANAGER/][AlertManager -- PAC monitoring]]
+  - [[https://github.com/powerhome/pac-namespaces/blob/80c97aa29b236f1897f81320a463c645b5e3a388/monitoring/prometheus-rules/redis-operator.yaml#L13-L21][Prometheus rules -- custom alert conditions]]
 
-* Getting help
+- Manual ([[https://powerhome.pagerduty.com/incidents][demo]])
 
-- Merging incidents
-- Add responders
+* This is fine...
 
-* Tips
-
-- Dance in public; capture context and over-communicate
-- Facts before decisions
-
-
-* Resources
-
-- [[https://portal.powerapp.cloud/docs/default/component/incidents/conducting-a-response/][Guide - Conducting a response]]
+- Escalation (demo)
+- Merging incidents (demo)
