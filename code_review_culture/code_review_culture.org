@@ -1,0 +1,138 @@
+#+TITLE: Building a Code Review Culture
+#+AUTHOR: Aaron Kuehler
+#+EMAIL:
+#+OPTIONS: toc:nil
+#+OPTIONS: num:nil
+
+* What is Code Review?
+
+* What is a Code Review... good for?
+
+- Microsoft: [[https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/ICSE202013-codereview.pdf][Paper: Alberto Bacchelli, et al. - Expectations, Outcomes, and Challenges Of Modern Code Review]]
+
+* How are Code Reviews done?
+
+* Receiving critical feedback
+
+- Don't take it personally
+- Be grateful for an alternate point of view
+- Try to respond to every piece of feedback
+- Empathize with the reviewer's PoV
+- Explain WHY decisions were the best ones at the time
+- Create future work for non-functional changes (Refactorings, etc)
+- Provide references to clarifying context: work items, articles, etc
+- Address feedback in isolated commits, don't rebase, yet.
+
+* Giving critical feedback
+
+- Ask, don't tell..
+- Empathize with the author's PoV
+- Good Enough™ is good enough
+- Bring your perspective, expertise, experience
+- Consider: Readability, Maintainability, Test-ability, Support-ability, etc
+- Let the robots focus on style
+- Indicate which ideas you feel strongly about, and which ones you don't
+- Call in a 3rd party to resolve disagreements
+
+* Commit & PR Messages
+#+begin_quote
+"If content is king, context is god."
+-- Gary Vaynerchuk
+#+end_quote
+
+* Commit & PR Messages
+
+#+begin_quote
+Archaeology is the study of what's left behind.
+
+Chat messages, ticketing systems, note taking apps, etc come and go.
+These are context graveyards doomed to - eventually - fall out of
+fashion.
+
+Version control history is immortal.
+
+-- Aaron
+#+end_quote
+
+* Commit & PR Messages
+
+#+begin_src
+$ git log --oneline -5 --author cbeams --before "Fri Mar 26 2009"
+
+e5f4b49 Re-adding ConfigurationPostProcessorTests after its brief removal in r814. @Ignore-ing the testCglibClassesAreLoadedJustInTimeForEnhancement() method as it turns out this was one of the culprits in the recent build breakage. The classloader hacking causes subtle downstream effects, breaking unrelated tests. The test method is still useful, but should only be run on a manual basis to ensure CGLIB is not prematurely classloaded, and should not be run as part of the automated build.
+2db0f12 fixed two build-breaking issues: + reverted ClassMetadataReadingVisitor to revision 794 + eliminated ConfigurationPostProcessorTests until further investigation determines why it causes downstream tests to fail (such as the seemingly unrelated ClassPathXmlApplicationContextTests)
+147709f Tweaks to package-info.java files
+22b25e0 Consolidated Util and MutableAnnotationUtils classes into existing AsmUtils
+7f96f57 polishing
+#+end_src
+
+vs
+
+#+begin_src
+$ git log --oneline -5 --author pwebb --before "Sat Aug 30 2014"
+
+5ba3db6 Fix failing CompositePropertySourceTests
+84564a0 Rework @PropertySource early parsing logic
+e142fd1 Add tests for ImportSelector meta-data
+887815f Update docbook dependency and generate epub
+ac8326d Polish mockito usage
+#+end_src
+
+* Good Commit & PR Messages
+
+#+begin_src markdown
+Summarize changes in around 50 characters or less
+
+More detailed explanatory text, if necessary. Wrap it to about 72
+characters or so. In some contexts, the first line is treated as the
+subject of the commit and the rest of the text as the body. The blank
+line separating the summary from the body is critical (unless you omit
+the body entirely); various tools like `log`, `shortlog` and `rebase`
+can get confused if you run the two together.
+
+Explain the problem that this commit is solving. Focus on why you are
+making this change as opposed to how (the code explains that). Are there
+side effects or other unintuitive consequences of this change? Here's
+the place to explain them.
+
+Further paragraphs come after blank lines.
+
+ - Bullet points are okay, too
+
+ - Typically a hyphen or asterisk is used for the bullet, preceded by a
+   single space, with blank lines in between, but conventions vary here
+
+If you use an issue tracker, put references to them at the bottom, like
+this:
+
+Resolves: #123
+See also: #456, #789
+#+end_src
+
+
+* Good Commit & PR Messages
+
+- Separate subject from body with a blank line
+- Limit the subject line to 50 characters
+- Capitalize the subject line
+- Do not end the subject line with a period
+- Use the imperative mood in the subject line
+- Wrap the body at 72 characters
+- Use the body to explain what and *WHY*, not how
+
+* Good Commit & PR Messages
+
+Describe...
+
+- "Why?" this change exists
+- Discarded alternate solutions and why they weren't chosen
+- Tradeoffs, and accrued technical debt
+- External forces, business factors affecting the change
+- Success, and/or Tripwire metrics
+
+* References
+
+- [[https://aaronkuehler.com/blog/2019/05/09/building-a-healthy-code-review-culture/][Blog: Aaron Kuehler - Building a Healthy Code Review Culture]]
+- [[https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/ICSE202013-codereview.pdf][Paper: Alberto Bacchelli, et al. - Expectations, Outcomes, and Challenges Of Modern Code Review]]
+- [[https://github.com/thoughtbot/guides/tree/master/code-review][Guide: Thoughtbot -- Guides - Code Review]]
+- [[https://topenddevs.com/podcasts/ruby-rogues/episodes/216-rr-code-review-culture-with-derek-prior#player1?catid=0&trackid=0][Podcast: Ruby Rogues - Code Review Culture w/Derek Prior]]
