@@ -1,0 +1,155 @@
+#+TITLE: Ruby Hacking Challenge
+#+AUTHOR: Aaron Kuehler
+#+EMAIL:
+#+OPTIONS: toc:nil
+#+OPTIONS: num:nil
+
+* What is it?
+
+- https://github.com/ko1/rubyhackchallenge
+
+#+begin_quote
+"Ruby Hack Challenge" (RHC) is a short guide to hack MRI (Matz Ruby
+Interpreter) internals.
+#+end_quote
+
+* What is it?
+
+- How is work refined and performed on ruby itself?
+- How are the MRI internals structured?
+- How to setup for development
+- Exercises to familiarize with MRI internals
+- How to get involved working on bugs, performance enhancements, and new features
+
+* Development structure
+
+#+begin_src
+workdir/
+    ruby/ <- cloned git repo (work goes here)
+    build/ <- compilation artifacts
+    install/ <- compiled MRI executables (ruby, miniruby, etc)
+#+end_src
+
+* Demo
+
+- Let's add =Array#second=!
+
+An example implementation in ruby:
+
+#+begin_src ruby
+class Array
+  def second
+    self[1]
+  end
+end
+#+end_src
+
+* Demo - Step 1
+
+WRITE A FAILING TEST!
+
+ruby/test/ruby/test_array.rb
+#+begin_src ruby
+  def test_second
+    assert_equal(nil, @cls[].second)
+    assert_equal(nil, @cls[2].second)
+    assert_equal(2, @cls[1, 2].second)
+    assert_equal(1, @cls[2, 1, 3, 4].second)
+  end
+#+end_src
+
+#+begin_src sh
+make test-all TESTS='ruby/test_array.rb'
+#+end_src
+
+* Demo - Step 2
+
+Register the new Ruby Array interface method
+
+array.c
+#+begin_src diff
+void
+Init_Array(void)
+{
+...
++ rb_define_method(rb_cArray, "second", ary_second, 0);
+#+end_src
+
+- define a method on the Ruby Array class called "second"
+- map invocations to the C funciton called =ary_second=
+- it takes 0 arguments
+
+* Demo - Step 3
+
+Implement!
+
+array.c
+#+begin_src c
+static VALUE
+ary_second(VALUE self)
+{
+    return rb_ary_entry(self, 1); // <--- CHEATER! reuse the rb_ary_entry c-function
+}
+#+end_src
+
+* Demo - Step 3
+
+Implementation details...
+
+array.c
+#+begin_src c
+VALUE
+rb_ary_entry(VALUE ary, long offset)
+{
+    return rb_ary_entry_internal(ary, offset);
+}
+
+...
+
+static inline VALUE
+rb_ary_entry_internal(VALUE ary, long offset)
+{
+    long len = RARRAY_LEN(ary);
+    const VALUE *ptr = RARRAY_CONST_PTR(ary);
+    if (len == 0) return Qnil;
+    if (offset < 0) {
+        offset += len;
+        if (offset < 0) return Qnil;
+    }
+    else if (len <= offset) {
+        return Qnil;
+    }
+    return ptr[offset];
+}
+#+end_src
+
+* Demo - Step 4
+
+TEST AGAIN!
+
+#+begin_src sh
+make test-all TESTS='ruby/test_array.rb'
+#+end_src
+
+* Demo - Step 5
+
+Build and install the new MRI into the =workdir/install= directory:
+
+#+begin_src sh
+make -j && make install
+#+end_src
+
+* Demo - Step 6
+
+Use your new MRI features
+
+#+begin_src ruby
+../install/bin/irb
+irb(main):001> [:pen, :apple, :apple_pen].second
+=> :apple
+#+end_src
+
+* References
+
+- Ruby Hack Challenge - Koichi Sassada: https://github.com/ko1/rubyhackchallenge
+- Ruby under a microscope - Pat Shaughenessy: https://patshaughnessy.net/ruby-under-a-microscope
